@@ -233,11 +233,12 @@
             </div>
 
             <div class="input-group" style="background:#fff7e6; border:1px solid #ffe58f; border-radius:6px; padding:10px 12px;">
+                <div style="font-size:0.7em; font-weight:700; letter-spacing:0.05em; color:#664d03; text-transform:uppercase; margin-bottom:6px;">Post-publication extension · off by default</div>
                 <label style="display:flex; align-items:flex-start; gap:8px; margin:0; font-weight:600; cursor:pointer;">
                     <input type="checkbox" id="chronicDebt" style="margin-top:3px; width:auto;">
                     <span>I've been sleep-deprived for 5+ days
                         <span style="display:block; font-weight:400; font-size:0.82em; color:#664d03; margin-top:2px;">
-                            Inflates error and lapse coefficients by ~1.5× per Belenky et al., Sleep 2003 (chronic restriction accumulates beyond acute effects).
+                            Inflates error and lapse coefficients by ~1.5× per Belenky et al., Sleep 2003 (chronic restriction accumulates beyond acute effects). Not part of the published model — leave unchecked to reproduce the paper exactly.
                         </span>
                     </span>
                 </label>
@@ -249,7 +250,7 @@
         </div>
 
         <div class="outputs">
-            <h2>Predicted Performance (95% individual range)</h2>
+            <h2>Predicted Performance (95% individual range) <span id="modelBadge" style="display:none; font-size:0.55em; font-weight:600; color:#664d03; background:#fff7e6; border:1px solid #ffe58f; padding:3px 8px; border-radius:10px; vertical-align:middle; margin-left:8px;">extended model</span></h2>
             <div class="output-grid">
                 <div class="output-card">
                     <h3>Composite Performance <span class="unit">/100</span></h3>
@@ -308,15 +309,17 @@
     </div>
 
     <div class="footer">
-        <strong>Disclaimer.</strong> Educational / illustrative tool. Implements the deterministic mean of the Monte Carlo dose-response model described in the source paper; uncertainty ranges reflect within-individual variability only (z noise + parameter SD). Not for clinical decision-making.
+        <strong>What this calculator implements (as published).</strong> The deterministic mean of the Monte Carlo dose-response model in <a href="https://doi.org/10.7759/cureus.95729" target="_blank" rel="noopener">Moen 2025, <em>Cureus</em> 17(10): e95729</a>, evaluated at the exact sleep-hour the user enters. Uncertainty ranges reflect within-individual variability only (z noise + parameter SD). With the post-publication toggle <em>off</em> (the default), outputs reproduce the paper's Table 1 to within ±1.5 units across all eight metrics. Not for clinical decision-making.
         <br><br>
-        <strong>External concordance.</strong> The per-extended-shift effect predicted here (2.05× medical-error ratio at 2.5 h vs. 7 h of sleep) closely matches the directly observed OR of 1.84 in
+        <strong>Post-publication addenda (not part of the original paper).</strong>
+        (1) <em>External concordance check:</em> the per-extended-shift effect predicted by the published model (2.05× medical-error ratio at 2.5 h vs. 7 h of sleep) closely matches the directly observed OR of 1.84 in
         <a href="https://doi.org/10.1136/bmjmed-2022-000320" target="_blank" rel="noopener">Barger et al., <em>BMJ Med</em> 2023</a>
-        (n = 4,826 PGY2+ residents). The schedule comparison in
+        (n = 4,826 PGY2+ residents); the schedule comparison in
         <a href="https://doi.org/10.1093/sleep/zsz110" target="_blank" rel="noopener">Barger et al., <em>Sleep</em> 2019 (ROSTERS trial)</a>
-        is directionally concordant. Field-study weekly-hours effects exceed this model's acute-sleep predictions by ~3×, consistent with workload, recovery, and chronic-debt contributions the model does not include — so outputs are a lower bound on real-world impairment.
+        is directionally concordant. Field-study weekly-hours effects exceed this model's acute-sleep predictions by ~3×, consistent with workload, recovery, and chronic-debt contributions the model does not include — so outputs should be read as a lower bound on real-world impairment.
+        (2) <em>Optional chronic-debt toggle (off by default):</em> inflates error and lapse slopes by ~1.5× per Belenky et al., <em>Sleep</em> 2003. When on, the "extended model" badge appears next to the results header.
         <br><br>
-        Source code and Stata do-file: <a href="#" id="repoLink">GitHub</a>.
+        Source code, Stata do-file, and full concordance table: <a href="#" id="repoLink">GitHub</a>.
     </div>
 </div>
 
@@ -513,7 +516,8 @@ const els = {
     shareImg:     document.getElementById("shareImgBtn"),
     copyText:     document.getElementById("copyTextBtn"),
     shareStatus:  document.getElementById("shareStatus"),
-    chronicDebt:  document.getElementById("chronicDebt")
+    chronicDebt:  document.getElementById("chronicDebt"),
+    modelBadge:   document.getElementById("modelBadge")
 };
 
 // Holds the most recent prediction so the share/narrative renderers don't
@@ -613,6 +617,10 @@ function render() {
     els.warning.classList.toggle("show", r.err.v >= 9);
 
     renderNarrative(r, hours, els.role.value, els.specialty.value, chronicDebt);
+
+    // Visible signal that outputs are using a post-publication extension
+    // rather than the model as published.
+    els.modelBadge.style.display = chronicDebt ? "inline-block" : "none";
 }
 
 // Keep the slider and number input in sync, and re-render on any input change.
@@ -657,7 +665,7 @@ function buildShareCanvas(state) {
     ctx.fillStyle = "rgba(220,230,245,1)";
     ctx.font = "400 22px -apple-system, 'Helvetica Neue', Arial, sans-serif";
     const headerLine = `${ROLE_LABEL[role]} · ${SPEC_LABEL[specialty]}`
-        + (chronicDebt ? " · chronic sleep debt" : "");
+        + (chronicDebt ? " · chronic-debt extension (post-publication)" : "");
     ctx.fillText(headerLine, 50, 110);
 
     // Lede
@@ -749,7 +757,7 @@ function buildShareText(state) {
     const rested = predict(8, state.role, state.specialty, chronicDebt);
     const errMult = (r.err.v / rested.err.v).toFixed(1);
     const eq = bacEquivalence(r.d);
-    const chronicTag = chronicDebt ? " (with chronic sleep debt)" : "";
+    const chronicTag = chronicDebt ? " (with post-publication chronic-debt extension)" : "";
     return [
         `At ${hours} hours of sleep, a ${ROLE_LABEL[role]}'s expected medical-error rate is ${r.err.v.toFixed(1)}%${chronicTag} — about ${errMult}× the rested baseline.`,
         `Reaction time: ${r.rt.v.toFixed(0)} ms (${eq.text.replace(/\.$/, "").toLowerCase()}).`,
