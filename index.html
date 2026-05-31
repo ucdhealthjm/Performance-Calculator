@@ -5,6 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Medical Performance Sleep Calculator</title>
     <meta name="description" content="Companion calculator to Moen J (2025), Cureus 17(10): e95729. Predicts physician performance, error risk, and well-being as a function of nightly sleep, using the Monte Carlo dose-response model from the paper.">
+
+    <!-- Open Graph / Twitter Card: lets links unfurl as a rich preview on
+         X/LinkedIn/Slack/iMessage/Facebook. Re-run generate_og_image.py if
+         the hero copy ever changes. -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ucdhealthjm.github.io/Performance-Calculator/">
+    <meta property="og:title" content="Medical Performance Sleep Calculator">
+    <meta property="og:description" content="At 4 hours of sleep, predicted medical-error risk is ~70% higher than rested — comparable to a blood alcohol concentration of ~0.05%. Interactive companion to a published Monte Carlo simulation.">
+    <meta property="og:image" content="https://ucdhealthjm.github.io/Performance-Calculator/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Medical Performance Sleep Calculator — at 4 hours of sleep, reaction time is 424 ms and medical-error risk is ~70% higher than rested, comparable to BAC ~0.05%.">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Medical Performance Sleep Calculator">
+    <meta name="twitter:description" content="At 4 hours of sleep, predicted medical-error risk is ~70% higher than rested — comparable to a blood alcohol concentration of ~0.05%.">
+    <meta name="twitter:image" content="https://ucdhealthjm.github.io/Performance-Calculator/og-image.png">
+    <link rel="canonical" href="https://ucdhealthjm.github.io/Performance-Calculator/">
     <style>
         :root {
             --navy: #003366;
@@ -123,6 +140,49 @@
             display: none;
         }
         .warning-card.show { display: block; }
+
+        .narrative {
+            margin-top: 18px;
+            padding: 16px 18px;
+            background: #f0f6ff;
+            border: 1px solid #cfe2ff;
+            border-radius: 8px;
+            font-size: 0.95em;
+            line-height: 1.55;
+            color: #1a3556;
+        }
+        .narrative strong { color: var(--navy); }
+        .narrative .lede { font-size: 1.05em; margin-bottom: 6px; }
+
+        .share-row {
+            margin-top: 14px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            font: inherit;
+            padding: 9px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--navy);
+            background: var(--navy);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        .btn:hover { background: var(--blue); border-color: var(--blue); }
+        .btn.secondary {
+            background: #fff;
+            color: var(--navy);
+        }
+        .btn.secondary:hover { background: #eef4ff; color: var(--navy); }
+        .share-status {
+            font-size: 0.82em;
+            color: var(--muted);
+            margin-top: 6px;
+            min-height: 1.1em;
+        }
         .footer {
             background: #e9ecef;
             padding: 14px 20px;
@@ -225,6 +285,14 @@
                     <div class="equivalence-value" id="equivVal">—</div>
                 </div>
             </div>
+
+            <div class="narrative" id="narrative" aria-live="polite"></div>
+
+            <div class="share-row">
+                <button class="btn" id="shareImgBtn" type="button">Share my result as image</button>
+                <button class="btn secondary" id="copyTextBtn" type="button">Copy share text</button>
+            </div>
+            <div class="share-status" id="shareStatus" aria-live="polite"></div>
         </div>
     </div>
 
@@ -410,17 +478,69 @@ const els = {
     equivCard:    document.getElementById("equivCard"),
     equiv:        document.getElementById("equivVal"),
     warning:      document.getElementById("safetyWarning"),
-    repoLink:     document.getElementById("repoLink")
+    repoLink:     document.getElementById("repoLink"),
+
+    narrative:    document.getElementById("narrative"),
+    shareImg:     document.getElementById("shareImgBtn"),
+    copyText:     document.getElementById("copyTextBtn"),
+    shareStatus:  document.getElementById("shareStatus")
 };
+
+// Holds the most recent prediction so the share/narrative renderers don't
+// have to recompute (and so they always show what the user is actually seeing).
+let lastResult = null;
 
 function fmt(n, digits) { return Number.isFinite(n) ? n.toFixed(digits) : "—"; }
 function ci(lo, hi, digits, unit) {
     return `95% range: ${fmt(lo, digits)}–${fmt(hi, digits)}${unit || ""}`;
 }
 
+// Pretty role/specialty labels for the narrative and share copy.
+const ROLE_LABEL = { student: "medical student", resident: "resident", attending: "attending" };
+const SPEC_LABEL = { emergency: "emergency medicine", surgery: "surgery", internal: "internal medicine", psychiatry: "psychiatry" };
+
+// Turn the prediction into 2–3 plain-English sentences the user can read,
+// share, or screenshot. The lede line is the most shareable claim.
+function renderNarrative(r, hours, role, specialty) {
+    const rested = predict(8, role, specialty);
+    const oneMore = predict(Math.min(8, hours + 1), role, specialty);
+    const errMult = r.err.v / rested.err.v;
+    const errDelta = r.err.v - rested.err.v;
+    const rtDelta = r.rt.v - rested.rt.v;
+    const compositePct = (r.composite.v / rested.composite.v) * 100;
+    const eq = bacEquivalence(r.d);
+
+    let lede;
+    if (r.d <= 0.5) {
+        lede = `<strong>At ${hours} h of sleep tonight you're near a rested baseline</strong> — predicted medical-error probability ~${r.err.v.toFixed(1)}%, comparable to a well-functioning shift.`;
+    } else if (errMult >= 1.05) {
+        lede = `<strong>At ${hours} h of sleep, your expected medical-error rate is ${r.err.v.toFixed(1)}%</strong> — about ${errMult.toFixed(1)}× the rested baseline of ${rested.err.v.toFixed(1)}% (${errDelta >= 0 ? "+" : ""}${errDelta.toFixed(1)} percentage points).`;
+    } else {
+        lede = `<strong>At ${hours} h of sleep, your expected medical-error rate is ${r.err.v.toFixed(1)}%</strong>, close to the rested baseline of ${rested.err.v.toFixed(1)}%.`;
+    }
+
+    const bacLine = r.d > 0.5
+        ? `Reaction time slows by ${Math.max(0, rtDelta).toFixed(0)} ms — ${eq.text.replace(/\.$/, "").toLowerCase()}.`
+        : `Reaction time is at your rested baseline.`;
+
+    const compositeLine = `Across the four performance domains, you're operating at <strong>${compositePct.toFixed(0)}%</strong> of a rested ${SPEC_LABEL[specialty]} ${ROLE_LABEL[role]}.`;
+
+    let actionLine = "";
+    if (hours < 8 && oneMore.err.v < r.err.v - 0.2) {
+        const drop = r.err.v - oneMore.err.v;
+        actionLine = `<strong>One more hour of sleep tonight would lower the expected error rate to ${oneMore.err.v.toFixed(1)}%</strong> (a ${drop.toFixed(1)}-point drop).`;
+    }
+
+    els.narrative.innerHTML =
+        `<div class="lede">${lede}</div>` +
+        `<div>${bacLine} ${compositeLine}</div>` +
+        (actionLine ? `<div style="margin-top:6px">${actionLine}</div>` : "");
+}
+
 function render() {
     const hours = clip(parseFloat(els.sleep.value) || 0, 0, 9);
     const r = predict(hours, els.role.value, els.specialty.value);
+    lastResult = { r, hours, role: els.role.value, specialty: els.specialty.value };
 
     els.composite.textContent   = fmt(r.composite.v, 1);
     els.compositeCi.textContent = ci(r.composite.lo, r.composite.hi, 1);
@@ -455,6 +575,8 @@ function render() {
     // Patient-safety warning when error probability roughly doubles vs rested
     // (Cureus paper, Results: <4h vs >4h yields ~9.7% vs 6.8%; >6h baseline 5.2%).
     els.warning.classList.toggle("show", r.err.v >= 9);
+
+    renderNarrative(r, hours, els.role.value, els.specialty.value);
 }
 
 // Keep the slider and number input in sync, and re-render on any input change.
@@ -470,9 +592,151 @@ els.sleepSlider.addEventListener("input",  e => syncSleep(e.target));
 els.role.addEventListener("change",        render);
 els.specialty.addEventListener("change",   render);
 
+// =============================================================================
+// Share — image and text
+// =============================================================================
+const SITE_URL = "https://ucdhealthjm.github.io/Performance-Calculator/";
+const CITATION = "Moen J. Cureus 17(10): e95729 (2025) — doi:10.7759/cureus.95729";
+
+// Render the user's current result to a 1200x630 canvas. Drawn fresh on every
+// click so the image always matches what's on screen.
+function buildShareCanvas(state) {
+    const { r, hours, role, specialty } = state;
+    const W = 1200, H = 630;
+    const canvas = document.createElement("canvas");
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext("2d");
+
+    // Background
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, W, H);
+
+    // Navy header
+    ctx.fillStyle = "#003366";
+    ctx.fillRect(0, 0, W, 130);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "600 44px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillText("Medical Performance Sleep Calculator", 50, 75);
+    ctx.fillStyle = "rgba(220,230,245,1)";
+    ctx.font = "400 22px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillText(`${ROLE_LABEL[role]} · ${SPEC_LABEL[specialty]}`, 50, 110);
+
+    // Lede
+    const rested = predict(8, role, specialty);
+    const errMult = r.err.v / rested.err.v;
+
+    ctx.fillStyle = "#6c757d";
+    ctx.font = "400 32px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillText(`At ${hours} hours of sleep tonight:`, 50, 195);
+
+    // Headline number — error rate, the most arresting metric
+    ctx.fillStyle = "#0056b3";
+    ctx.font = "700 120px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    const headline = `${r.err.v.toFixed(1)}%`;
+    ctx.fillText(headline, 50, 320);
+    const headlineW = ctx.measureText(headline).width;
+    ctx.fillStyle = "#6c757d";
+    ctx.font = "400 30px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillText("expected medical-error rate", 50 + headlineW + 20, 320);
+
+    // Multiplier vs rested
+    ctx.fillStyle = "#003366";
+    ctx.font = "600 32px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    if (errMult >= 1.05) {
+        ctx.fillText(`${errMult.toFixed(1)}× the rested baseline of ${rested.err.v.toFixed(1)}%`, 50, 380);
+    } else {
+        ctx.fillText(`Near the rested baseline of ${rested.err.v.toFixed(1)}%`, 50, 380);
+    }
+    ctx.font = "400 26px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillStyle = "#444";
+    ctx.fillText(`Reaction time ${r.rt.v.toFixed(0)} ms  ·  Composite ${r.composite.v.toFixed(0)}/100`, 50, 418);
+
+    // BAC equivalence band
+    const eq = bacEquivalence(r.d);
+    const bandY0 = 445, bandY1 = 525;
+    ctx.fillStyle = eq.danger ? "#fde2e2" : "#fffbe6";
+    ctx.fillRect(50, bandY0, W - 100, bandY1 - bandY0);
+    ctx.strokeStyle = eq.danger ? "#f5b7b1" : "#ffe58f";
+    ctx.lineWidth = 2;
+    ctx.strokeRect(50, bandY0, W - 100, bandY1 - bandY0);
+    ctx.fillStyle = eq.danger ? "#842029" : "#664d03";
+    ctx.font = "600 30px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillText(eq.text, 70, bandY0 + 50);
+
+    // Footer
+    ctx.fillStyle = "#6c757d";
+    ctx.font = "400 20px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillText(CITATION, 50, H - 60);
+    ctx.fillStyle = "#003366";
+    ctx.fillText("ucdhealthjm.github.io/Performance-Calculator", 50, H - 32);
+
+    return canvas;
+}
+
+function flashStatus(msg) {
+    els.shareStatus.textContent = msg;
+    setTimeout(() => { els.shareStatus.textContent = ""; }, 4000);
+}
+
+async function downloadShareImage() {
+    if (!lastResult) return;
+    const canvas = buildShareCanvas(lastResult);
+    const fname = `sleep-performance-${lastResult.hours}h.png`;
+    canvas.toBlob(async (blob) => {
+        // Trigger download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = fname;
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+
+        // Also try clipboard (works in modern Chromium/Safari, requires HTTPS)
+        let clipped = false;
+        try {
+            if (navigator.clipboard && window.ClipboardItem) {
+                await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+                clipped = true;
+            }
+        } catch (_) { /* clipboard not granted; download still worked */ }
+
+        flashStatus(clipped
+            ? `Saved ${fname} and copied image to clipboard — paste it anywhere.`
+            : `Saved ${fname} to your Downloads folder.`);
+    }, "image/png");
+}
+
+function buildShareText(state) {
+    const { r, hours, role } = state;
+    const rested = predict(8, state.role, state.specialty);
+    const errMult = (r.err.v / rested.err.v).toFixed(1);
+    const eq = bacEquivalence(r.d);
+    return [
+        `At ${hours} hours of sleep, a ${ROLE_LABEL[role]}'s expected medical-error rate is ${r.err.v.toFixed(1)}% — about ${errMult}× the rested baseline.`,
+        `Reaction time: ${r.rt.v.toFixed(0)} ms (${eq.text.replace(/\.$/, "").toLowerCase()}).`,
+        ``,
+        `Try it: ${SITE_URL}`,
+        `Source: Moen J. Cureus 17(10): e95729 (2025).`
+    ].join("\n");
+}
+
+async function copyShareText() {
+    if (!lastResult) return;
+    const txt = buildShareText(lastResult);
+    try {
+        await navigator.clipboard.writeText(txt);
+        flashStatus("Share text copied — paste into X, LinkedIn, or iMessage.");
+    } catch (_) {
+        // Fallback: open a prompt the user can copy from
+        window.prompt("Copy this:", txt);
+    }
+}
+
+els.shareImg.addEventListener("click",  downloadShareImage);
+els.copyText.addEventListener("click",  copyShareText);
+
 // Set the repo link at runtime so it can be updated in one place without
 // re-publishing. Falls back to the DOI page if no repo is configured yet.
-els.repoLink.href = "https://doi.org/10.7759/cureus.95729";
+els.repoLink.href = "https://github.com/ucdhealthjm/Performance-Calculator";
 
 render();
 </script>
