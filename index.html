@@ -222,32 +222,6 @@
             color: #5a4400;
             line-height: 1.5;
         }
-        .shift-body {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 24px;
-            padding: 22px 25px;
-            border-bottom: 1px solid #e9ecef;
-        }
-        @media (min-width: 760px) {
-            .shift-body { grid-template-columns: 1fr 1.4fr; }
-        }
-        .shift-body h3 {
-            font-size: 1em;
-            color: var(--navy);
-            margin: 0 0 12px;
-        }
-        .shift-summary {
-            font-size: 0.92em;
-            line-height: 1.55;
-            color: #1a3556;
-            background: #f0f6ff;
-            border: 1px solid #cfe2ff;
-            border-radius: 8px;
-            padding: 12px 14px;
-            margin-bottom: 12px;
-        }
-        .shift-summary strong { color: var(--navy); }
         .empirical {
             padding: 22px 25px;
             background: #fafbfc;
@@ -486,35 +460,7 @@
     <div class="panel-header">
         <div class="pp-kicker">Post-publication addendum · not part of the published paper</div>
         <h2>Shift Profile: what does the marginal hour buy?</h2>
-        <p>This panel models predicted physician performance across the hours of a single shift, then compares those predictions to what large randomized trials of duty-hour flexibility actually observed when shifts were extended past 16 hours. Role, specialty, and chronic-debt selections from the calculator above are inherited.</p>
-    </div>
-
-    <div class="shift-body">
-        <div>
-            <h3>Shift parameters</h3>
-            <div class="input-group">
-                <label for="shiftLength">Shift length (hours)</label>
-                <div class="slider-row">
-                    <input type="range" id="shiftLengthSlider" min="12" max="30" step="1" value="24">
-                    <input type="number" id="shiftLength" class="num" min="12" max="30" step="1" value="24">
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="priorSleep">Hours of sleep the night before</label>
-                <div class="slider-row">
-                    <input type="range" id="priorSleepSlider" min="3" max="9" step="0.5" value="6">
-                    <input type="number" id="priorSleep" class="num" min="3" max="9" step="0.5" value="6">
-                </div>
-            </div>
-            <div style="font-size:0.78em; color:var(--muted); margin-top:6px;">
-                The trajectory model assumes the shift starts after ~2 hours of pre-shift wake time. Within-shift impairment grows once total wake time exceeds ~16 hours, anchored to Williamson 2000 and Arnedt 2005. The per-hour sleep-debt accumulation rate is a post-publication modeling assumption, not derived in the source paper.
-            </div>
-        </div>
-
-        <div>
-            <h3>Predicted performance trajectory</h3>
-            <div id="shiftSummary" class="shift-summary" aria-live="polite"></div>
-        </div>
+        <p>What large randomized trials of duty-hour flexibility actually observed when shifts were extended past 16 hours, alongside the iCOMPARE sleep substudy data on within-shift alertness.</p>
     </div>
 
     <div class="empirical">
@@ -901,86 +847,9 @@ function syncSleep(source) {
 
 els.sleep.addEventListener("input",        e => syncSleep(e.target));
 els.sleepSlider.addEventListener("input",  e => syncSleep(e.target));
-els.role.addEventListener("change",        () => { render(); renderShift(); });
-els.specialty.addEventListener("change",   () => { render(); renderShift(); });
-els.chronicDebt.addEventListener("change", () => { render(); renderShift(); });
-
-// =============================================================================
-// Shift Profile (post-publication addendum)
-//
-// Models within-shift performance trajectory by computing an "effective sleep
-// debt" at each hour of the shift. Effective debt = baseline debt (from prior
-// night's sleep) + accumulated wake-time debt once total wake hours exceed 16,
-// anchored to the Williamson 2000 / Arnedt 2005 dose-response thresholds.
-//
-// The per-hour wake-debt accumulation rate (0.5 h debt per wake hour past 16)
-// is a post-publication modeling assumption that is NOT in the source paper.
-// =============================================================================
-const shiftEls = {
-    length:       document.getElementById("shiftLength"),
-    lengthSlider: document.getElementById("shiftLengthSlider"),
-    prior:        document.getElementById("priorSleep"),
-    priorSlider:  document.getElementById("priorSleepSlider"),
-    summary:      document.getElementById("shiftSummary")
-};
-
-const PRE_SHIFT_WAKE_HOURS = 2;   // assume 2h between waking and shift start
-const WAKE_DEBT_RATE       = 0.5; // each wake-hour past 16 adds 0.5h debt
-const WAKE_DEBT_THRESHOLD  = 16;  // hours awake before debt accumulation starts
-
-function effectiveDebt(hourIntoShift, priorSleep) {
-    const baseline    = Math.max(0, 8 - priorSleep);
-    const wakeHours   = PRE_SHIFT_WAKE_HOURS + hourIntoShift;
-    const accumulated = Math.max(0, (wakeHours - WAKE_DEBT_THRESHOLD) * WAKE_DEBT_RATE);
-    return baseline + accumulated;
-}
-
-// Convert effective debt back to a "virtual sleep hours" so we can reuse
-// predict() without forking the math.
-function predictAtShiftHour(hourIntoShift, priorSleep, role, specialty, chronicDebt) {
-    const d = effectiveDebt(hourIntoShift, priorSleep);
-    const virtualSleep = 8 - d;
-    return predict(virtualSleep, role, specialty, chronicDebt);
-}
-
-function shiftSyncInput(source, target) {
-    const v = clip(parseFloat(source.value) || 0, parseFloat(source.min), parseFloat(source.max));
-    source.value = v; target.value = v;
-    renderShift();
-}
-
-function renderShift() {
-    const shiftLen   = clip(parseFloat(shiftEls.length.value) || 0, 12, 30);
-    const priorSleep = clip(parseFloat(shiftEls.prior.value) || 0, 3, 9);
-    const role       = els.role.value;
-    const specialty  = els.specialty.value;
-    const chronicDebt = els.chronicDebt.checked;
-
-    // Build hourly trajectory across the shift.
-    const trajectory = [];
-    for (let h = 0; h <= shiftLen; h++) {
-        const r = predictAtShiftHour(h, priorSleep, role, specialty, chronicDebt);
-        trajectory.push({ hour: h, d: r.d, rt: r.rt.v, err: r.err.v });
-    }
-
-    // Key anchor points for the summary text.
-    const start = trajectory[0];
-    const h16   = trajectory.find(p => p.hour === 16) || trajectory[trajectory.length - 1];
-    const end   = trajectory[trajectory.length - 1];
-    const restedErr = predictAtShiftHour(0, 8, role, specialty, chronicDebt).err.v;
-
-    const eqEnd = bacEquivalence(end.d);
-    shiftEls.summary.innerHTML =
-        `<div><strong>Hour 0:</strong> RT ${start.rt.toFixed(0)} ms · error ${start.err.toFixed(1)}%</div>` +
-        `<div><strong>Hour 16 (current ACGME cap):</strong> RT ${h16.rt.toFixed(0)} ms · error ${h16.err.toFixed(1)}%</div>` +
-        `<div><strong>Hour ${end.hour} (end of shift):</strong> RT ${end.rt.toFixed(0)} ms · error ${end.err.toFixed(1)}%, ${(end.err / restedErr).toFixed(1)}× the rested baseline.</div>` +
-        `<div style="margin-top:6px; font-style:italic;">${eqEnd.text}</div>`;
-}
-
-shiftEls.length.addEventListener("input",       e => shiftSyncInput(e.target, shiftEls.lengthSlider));
-shiftEls.lengthSlider.addEventListener("input", e => shiftSyncInput(e.target, shiftEls.length));
-shiftEls.prior.addEventListener("input",        e => shiftSyncInput(e.target, shiftEls.priorSlider));
-shiftEls.priorSlider.addEventListener("input",  e => shiftSyncInput(e.target, shiftEls.prior));
+els.role.addEventListener("change",        render);
+els.specialty.addEventListener("change",   render);
+els.chronicDebt.addEventListener("change", render);
 
 // =============================================================================
 // Share: image and text
@@ -1132,7 +1001,6 @@ els.copyText.addEventListener("click",  copyShareText);
 els.repoLink.href = "https://github.com/ucdhealthjm/Performance-Calculator";
 
 render();
-renderShift();
 </script>
 </body>
 </html>
