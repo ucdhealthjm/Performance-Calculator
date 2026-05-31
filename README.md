@@ -25,7 +25,7 @@ The Stata do-file generates 500 Monte Carlo iterations of 11,000 synthetic clini
 
 ### Verification against Table 1
 
-Averaging the calculator over all 12 role × specialty combinations at each sleep-hour bucket center reproduces every Table 1 column to within ±1.5 units. (The intermediate-hour RT residuals of 3–8 ms are *not* a calculator bug — the do-file's `sleep_cat` buckets are populated by a truncated-normal sleep distribution centered at 5.8 hours, so each bucket's empirical mean is shifted away from `k + 0.5`.)
+Averaging the calculator over all 12 role × specialty combinations at each sleep-hour bucket center reproduces every Table 1 column to within ±1.5 units. (The intermediate-hour RT residuals of 3–8 ms are *not* a calculator bug; the do-file's `sleep_cat` buckets are populated by a truncated-normal sleep distribution centered at 5.8 hours, so each bucket's empirical mean is shifted away from `k + 0.5`.)
 
 ## Equations implemented
 
@@ -48,25 +48,25 @@ Cognitive-state (BAC) equivalences are mapped from sleep debt using Williamson &
 
 ## Post-publication addenda
 
-> **The published model is unchanged.** The sections below describe analyses and an optional toggle added to this repository *after* publication of Moen 2025 (*Cureus* 17(10): e95729). They are not claims of the original paper. The calculator's default state (chronic-debt toggle off) reproduces the paper's Table 1 to within ±1.5 units across all eight metrics — verified end-to-end against the Stata do-file.
+> **The published model is unchanged.** The sections below describe analyses and an optional toggle added to this repository *after* publication of Moen 2025 (*Cureus* 17(10): e95729). They are not claims of the original paper. The calculator's default state (chronic-debt toggle off) reproduces the paper's Table 1 to within ±1.5 units across all eight metrics, verified end-to-end against the Stata do-file.
 
 ### External concordance (post-publication check)
 
-The simulation is a synthesis, not new empirical data — but two NIH-funded multicenter studies from the Brigham/Harvard Sleep Medicine group provide independent comparison points at sleep levels the model spans. The table below compares the published model's predictions to those cohorts. **It is a post-publication concordance check, not part of the original paper.**
+The simulation is a synthesis, not new empirical data, but two NIH-funded multicenter studies from the Brigham/Harvard Sleep Medicine group provide independent comparison points at sleep levels the model spans. The table below compares the published model's predictions to those cohorts. **It is a post-publication concordance check, not part of the original paper.**
 
 | Comparison | Source | Observed effect | Predicted by this model | Verdict |
 |---|---|---|---|---|
-| **Per extended-duration shift (~2.5 h sleep) vs. none** | Barger et al. *BMJMed* 2023 (n=4,826 PGY2+ residents, 38,702 monthly reports) | OR **1.84** for medical error per ≥1 extended shift/mo | Per-night 2.5 h vs. 7 h → predicted error-rate ratio **2.05×** | **Concordant** — model reproduces a directly observed odds ratio to within ~10% |
+| **Per extended-duration shift (~2.5 h sleep) vs. none** | Barger et al. *BMJMed* 2023 (n=4,826 PGY2+ residents, 38,702 monthly reports) | OR **1.84** for medical error per ≥1 extended shift/mo | Per-night 2.5 h vs. 7 h → predicted error-rate ratio **2.05×** | **Concordant**: model reproduces a directly observed odds ratio to within ~10% |
 | **Schedule that gains ~0.55 h/night** (RCWR vs. EDWR) | Barger et al. *Sleep* 2019 (ROSTERS; n=302 pediatric residents, 6 sites, cluster-randomized crossover) | Improved PVT reaction time and fewer attentional failures on RCWR; modest medical-error reduction (companion report) | 7.0 h → 7.6 h sleep predicts ~7% relative error reduction and ~9 ms faster RT | **Directionally concordant** |
 | **>80 vs. ≤48 weekly work hours** | Barger et al. *BMJMed* 2023 | OR **4.01** for medical error | Predicted ratio from acute-sleep difference alone ~**1.3–1.5×** | **Model under-predicts by ~3×** (see framing below) |
 
-**On the third row — why the under-prediction is a feature, not a bug.** The published model is a *pure acute nightly-sleep dose-response*. It deliberately does not include workload, between-shift recovery, chronic multi-night debt, or shift-length effects independent of sleep. Field studies that bucket residents by weekly work hours capture all of those at once. The fact that the Barger 2023 OR of 4.0 at >80 h/wk exceeds our acute-sleep predictions by roughly 3× is consistent with this: work-hour effects in field studies aggregate sleep loss with workload, recovery, and chronic accumulation — none of which are modeled here. **The calculator should be interpreted as a lower bound on real-world impairment.**
+**On the third row: why the under-prediction is a feature, not a bug.** The published model is a *pure acute nightly-sleep dose-response*. It deliberately does not include workload, between-shift recovery, chronic multi-night debt, or shift-length effects independent of sleep. Field studies that bucket residents by weekly work hours capture all of those at once. The fact that the Barger 2023 OR of 4.0 at >80 h/wk exceeds our acute-sleep predictions by roughly 3× is consistent with this: work-hour effects in field studies aggregate sleep loss with workload, recovery, and chronic accumulation; none of which are modeled here. **The calculator should be interpreted as a lower bound on real-world impairment.**
 
 ### Optional chronic-debt toggle (post-publication extension, off by default)
 
-The calculator includes an optional checkbox — *"I've been sleep-deprived for 5+ days"* — that, when enabled, inflates the error and lapse slopes by ~1.5× per Belenky et al. 2003 (*Sleep*). This is a post-publication extension intended to partially close the under-prediction gap noted above for chronic-deprivation states. **It is not part of the model as published**, and when it is enabled the calculator displays an "extended model" badge next to the results header so users can tell the outputs are no longer the published estimate.
+The calculator includes an optional checkbox, *"I've been sleep-deprived for 5+ days"*, that, when enabled, inflates the error and lapse slopes by ~1.5× per Belenky et al. 2003 (*Sleep*). This is a post-publication extension intended to partially close the under-prediction gap noted above for chronic-deprivation states. **It is not part of the model as published**, and when it is enabled the calculator displays an "extended model" badge next to the results header so users can tell the outputs are no longer the published estimate.
 
-The toggle multiplier acts on the *slope* on sleep debt (and on the quadratic for lapses), not on the intercept — so the rested baseline at 8 h sleep is identical whether the toggle is on or off. With the toggle off, outputs reproduce the paper's Table 1 exactly.
+The toggle multiplier acts on the *slope* on sleep debt (and on the quadratic for lapses), not on the intercept, so the rested baseline at 8 h sleep is identical whether the toggle is on or off. With the toggle off, outputs reproduce the paper's Table 1 exactly.
 
 ## Why this repository was rebuilt
 
@@ -74,4 +74,4 @@ A previous public version of this calculator (at `j-amo.github.io/Performance-Ca
 
 ## License
 
-[CC BY 4.0](./LICENSE) — same as the published article. Please cite the paper if you use or adapt this material.
+[CC BY 4.0](./LICENSE), same as the published article. Please cite the paper if you use or adapt this material.

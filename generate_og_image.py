@@ -49,7 +49,7 @@ draw.text((50, 35),  "Medical Performance Sleep Calculator", fill=WHITE, font=f_
 draw.text((50, 88),  "An interactive companion to a published Monte Carlo simulation",
           fill=(220, 230, 245), font=f_kicker)
 
-# Headline result card — illustrates the model at a clinically meaningful state
+# Headline result card: illustrates the model at a clinically meaningful state
 draw.text((50, 165), "At 4 hours of sleep, predicted performance is",
           fill=GREY, font=f_med)
 
@@ -72,7 +72,7 @@ draw.text((70, band_y0 + 22),
 
 # Footer citation
 draw.text((50, H - 60),
-          "Moen J. Cureus 17(10): e95729 (2025) — doi:10.7759/cureus.95729",
+          "Moen J. Cureus 17(10): e95729 (2025). doi:10.7759/cureus.95729",
           fill=GREY, font=f_cite)
 draw.text((50, H - 32),
           "ucdhealthjm.github.io/Performance-Calculator",

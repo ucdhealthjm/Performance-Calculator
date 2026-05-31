@@ -12,14 +12,14 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://ucdhealthjm.github.io/Performance-Calculator/">
     <meta property="og:title" content="Medical Performance Sleep Calculator">
-    <meta property="og:description" content="At 4 hours of sleep, predicted medical-error risk is ~70% higher than rested — comparable to a blood alcohol concentration of ~0.05%. Interactive companion to a published Monte Carlo simulation.">
+    <meta property="og:description" content="At 4 hours of sleep, predicted medical-error risk is ~70% higher than rested, comparable to a blood alcohol concentration of ~0.05%. Interactive companion to a published Monte Carlo simulation.">
     <meta property="og:image" content="https://ucdhealthjm.github.io/Performance-Calculator/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Medical Performance Sleep Calculator — at 4 hours of sleep, reaction time is 424 ms and medical-error risk is ~70% higher than rested, comparable to BAC ~0.05%.">
+    <meta property="og:image:alt" content="Medical Performance Sleep Calculator: at 4 hours of sleep, reaction time is 424 ms and medical-error risk is ~70% higher than rested, comparable to BAC ~0.05%.">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Medical Performance Sleep Calculator">
-    <meta name="twitter:description" content="At 4 hours of sleep, predicted medical-error risk is ~70% higher than rested — comparable to a blood alcohol concentration of ~0.05%.">
+    <meta name="twitter:description" content="At 4 hours of sleep, predicted medical-error risk is ~70% higher than rested, comparable to a blood alcohol concentration of ~0.05%.">
     <meta name="twitter:image" content="https://ucdhealthjm.github.io/Performance-Calculator/og-image.png">
     <link rel="canonical" href="https://ucdhealthjm.github.io/Performance-Calculator/">
     <style>
@@ -248,14 +248,6 @@
             margin-bottom: 12px;
         }
         .shift-summary strong { color: var(--navy); }
-        .shift-chart {
-            background: #fafafa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 10px;
-        }
-        .shift-chart svg { display: block; width: 100%; height: auto; }
-
         .empirical {
             padding: 22px 25px;
             background: #fafbfc;
@@ -400,7 +392,7 @@
                     <input type="checkbox" id="chronicDebt" style="margin-top:3px; width:auto;">
                     <span>I've been sleep-deprived for 5+ days
                         <span style="display:block; font-weight:400; font-size:0.82em; color:#664d03; margin-top:2px;">
-                            Inflates error and lapse coefficients by ~1.5× per Belenky et al., Sleep 2003 (chronic restriction accumulates beyond acute effects). Not part of the published model — leave unchecked to reproduce the paper exactly.
+                            Inflates error and lapse coefficients by ~1.5× per Belenky et al., Sleep 2003 (chronic restriction accumulates beyond acute effects). Not part of the published model; leave unchecked to reproduce the paper exactly.
                         </span>
                     </span>
                 </label>
@@ -416,47 +408,47 @@
             <div class="output-grid">
                 <div class="output-card">
                     <h3>Composite Performance <span class="unit">/100</span></h3>
-                    <div class="output-value" id="compositeVal">—</div>
+                    <div class="output-value" id="compositeVal"></div>
                     <div class="output-ci" id="compositeCi"></div>
                 </div>
                 <div class="output-card">
                     <h3>Reaction Time <span class="unit">ms</span></h3>
-                    <div class="output-value" id="rtVal">—</div>
+                    <div class="output-value" id="rtVal"></div>
                     <div class="output-ci" id="rtCi"></div>
                 </div>
                 <div class="output-card">
                     <h3>Clinical Accuracy <span class="unit">%</span></h3>
-                    <div class="output-value" id="clinVal">—</div>
+                    <div class="output-value" id="clinVal"></div>
                     <div class="output-ci" id="clinCi"></div>
                 </div>
                 <div class="output-card">
                     <h3>Diagnostic Accuracy <span class="unit">%</span></h3>
-                    <div class="output-value" id="diagVal">—</div>
+                    <div class="output-value" id="diagVal"></div>
                     <div class="output-ci" id="diagCi"></div>
                 </div>
                 <div class="output-card">
                     <h3>Attentional Lapses <span class="unit">expected count</span></h3>
-                    <div class="output-value" id="lapsVal">—</div>
+                    <div class="output-value" id="lapsVal"></div>
                     <div class="output-ci" id="lapsCi"></div>
                 </div>
                 <div class="output-card">
                     <h3>Medical Error Probability <span class="unit">%</span></h3>
-                    <div class="output-value" id="errVal">—</div>
+                    <div class="output-value" id="errVal"></div>
                     <div class="output-ci" id="errCi"></div>
                 </div>
                 <div class="output-card">
                     <h3>Mood <span class="unit">/100</span></h3>
-                    <div class="output-value" id="moodVal">—</div>
+                    <div class="output-value" id="moodVal"></div>
                     <div class="output-ci" id="moodCi"></div>
                 </div>
                 <div class="output-card">
                     <h3>Burnout Probability <span class="unit">%</span></h3>
-                    <div class="output-value" id="burnVal">—</div>
+                    <div class="output-value" id="burnVal"></div>
                     <div class="output-ci" id="burnCi"></div>
                 </div>
                 <div class="output-card equivalence-card full-width" id="equivCard">
                     <div class="equivalence-label">Cognitive-state equivalent (Williamson 2000, Arnedt 2005)</div>
-                    <div class="equivalence-value" id="equivVal">—</div>
+                    <div class="equivalence-value" id="equivVal"></div>
                 </div>
             </div>
 
@@ -478,7 +470,7 @@
         <a href="https://doi.org/10.1136/bmjmed-2022-000320" target="_blank" rel="noopener">Barger et al., <em>BMJ Med</em> 2023</a>
         (n = 4,826 PGY2+ residents); the schedule comparison in
         <a href="https://doi.org/10.1093/sleep/zsz110" target="_blank" rel="noopener">Barger et al., <em>Sleep</em> 2019 (ROSTERS trial)</a>
-        is directionally concordant. Field-study weekly-hours effects exceed this model's acute-sleep predictions by ~3×, consistent with workload, recovery, and chronic-debt contributions the model does not include — so outputs should be read as a lower bound on real-world impairment.
+        is directionally concordant. Field-study weekly-hours effects exceed this model's acute-sleep predictions by ~3×, consistent with workload, recovery, and chronic-debt contributions the model does not include, so outputs should be read as a lower bound on real-world impairment.
         (2) <em>Optional chronic-debt toggle (off by default):</em> inflates error and lapse slopes by ~1.5× per Belenky et al., <em>Sleep</em> 2003. When on, the "extended model" badge appears next to the results header.
         <br><br>
         Source code, Stata do-file, and full concordance table: <a href="#" id="repoLink">GitHub</a>.
@@ -487,13 +479,13 @@
 
 <!-- ============================================================
      POST-PUBLICATION ADDENDUM
-     Shift Profile panel — not part of Moen 2025, Cureus 17(10): e95729.
+     Shift Profile panel, not part of Moen 2025, Cureus 17(10): e95729.
      Inputs above (role, specialty, chronic-debt) are inherited.
      ============================================================ -->
 <div class="shift-panel" id="shiftPanel">
     <div class="panel-header">
         <div class="pp-kicker">Post-publication addendum · not part of the published paper</div>
-        <h2>Shift Profile — what does the marginal hour buy?</h2>
+        <h2>Shift Profile: what does the marginal hour buy?</h2>
         <p>This panel models predicted physician performance across the hours of a single shift, then compares those predictions to what large randomized trials of duty-hour flexibility actually observed when shifts were extended past 16 hours. Role, specialty, and chronic-debt selections from the calculator above are inherited.</p>
     </div>
 
@@ -522,7 +514,6 @@
         <div>
             <h3>Predicted performance trajectory</h3>
             <div id="shiftSummary" class="shift-summary" aria-live="polite"></div>
-            <div id="shiftChart" class="shift-chart"></div>
         </div>
     </div>
 
@@ -530,7 +521,7 @@
         <h3>What randomized trials observed when shifts were allowed to extend past 16 hours</h3>
         <div class="empirical-grid">
             <div class="empirical-card">
-                <h4>Patient outcomes — noninferior in every measure</h4>
+                <h4>Patient outcomes, noninferior in every measure</h4>
                 <ul>
                     <li>30-day mortality: <strong>12.5% vs 12.2%</strong> (flexible vs standard). <em>iCOMPARE patient safety [3]</em></li>
                     <li>7-day readmission/death: 16.9% vs 16.6%. <em>iCOMPARE [3]</em></li>
@@ -541,19 +532,19 @@
             </div>
 
             <div class="empirical-card">
-                <h4>Education and training — no improvement</h4>
+                <h4>Education and training, no improvement</h4>
                 <ul>
                     <li>In-training exam score: <strong>68.9% vs 69.4%</strong> (flexible vs standard). <em>iCOMPARE education [2]</em></li>
                     <li>ABSITE scores were unchanged across the 2011 ACGME shift restriction. <em>Rajaram 2014 [5]</em></li>
                     <li>Direct patient-care time: 13.0% vs 11.8% (NS). <em>iCOMPARE [2]</em></li>
-                    <li>Education time: <strong>7.3% vs 7.3% — identical</strong>. <em>iCOMPARE [2]</em></li>
+                    <li>Education time: <strong>7.3% vs 7.3%, identical</strong>. <em>iCOMPARE [2]</em></li>
                     <li>Dissatisfaction with education quality: 11.0% vs 10.7%. <em>FIRST trial [1]</em></li>
                 </ul>
                 <p class="takeaway">No objective knowledge measure, education-time measure, or training-satisfaction measure improved with longer shifts.</p>
             </div>
 
             <div class="empirical-card">
-                <h4>Trainee well-being — substantially worse</h4>
+                <h4>Trainee well-being, substantially worse</h4>
                 <ul>
                     <li>Dissatisfied with overall well-being: <strong>30% vs 15%</strong> (2.5×). <em>iCOMPARE [2]</em></li>
                     <li>Dissatisfied with personal-life impact: <strong>33% vs 7%</strong> (6.1×). <em>iCOMPARE [2]</em></li>
@@ -566,7 +557,7 @@
             </div>
 
             <div class="empirical-card">
-                <h4>Alertness on overnight extended shifts — measurable deficit</h4>
+                <h4>Alertness on overnight extended shifts, measurable deficit</h4>
                 <ul>
                     <li>On the second day of an extended overnight shift, interns averaged <strong>5.12 h</strong> sleep per 24 h vs <strong>7.35 h</strong> on standard night-shift days. <em>iCOMPARE sleep substudy [4]</em></li>
                     <li>Karolinska Sleepiness Score on the post-extended-shift morning averaged <strong>6.8 / 9</strong> ("sleepy, but no effort to stay awake"). <em>[4]</em></li>
@@ -579,11 +570,11 @@
     </div>
 
     <div class="callout conclusion">
-        The hypothesis that more hours produces more competent physicians has been tested. Across iCOMPARE, FIRST, and the 2011 ACGME natural experiment, neither patient outcomes nor knowledge tests nor education time improved when shifts were extended past 16 hours. Self-reported well-being and post-shift alertness consistently worsened. The shift-profile model's prediction — that the marginal hour past 16 produces continued performance decay without compensating benefit — is consistent with what these trials actually observed.
+        The hypothesis that more hours produces more competent physicians has been tested. Across iCOMPARE, FIRST, and the 2011 ACGME natural experiment, neither patient outcomes nor knowledge tests nor education time improved when shifts were extended past 16 hours. Self-reported well-being and post-shift alertness consistently worsened. The shift-profile model's prediction, that the marginal hour past 16 produces continued performance decay without compensating benefit, is consistent with what these trials actually observed.
     </div>
 
     <div class="callout caveat">
-        <strong>What these trials did not test.</strong> Every cited duty-hour trial compared one chronically-deprived schedule (≤ 16 h shifts, 80 h/wk, ~6–7 h average sleep) to another (≥ 24 h shifts, 80 h/wk, ~6–7 h average sleep). None tested a recovery-centric comparator with protected ≥ 7 h nightly sleep. The published paper's central argument — that the duty-hour debate has been framed entirely between two forms of chronic deprivation — is reinforced, not undermined, by these results.
+        <strong>What these trials did not test.</strong> Every cited duty-hour trial compared one chronically-deprived schedule (≤ 16 h shifts, 80 h/wk, ~6–7 h average sleep) to another (≥ 24 h shifts, 80 h/wk, ~6–7 h average sleep). None tested a recovery-centric comparator with protected ≥ 7 h nightly sleep. The published paper's central argument, that the duty-hour debate has been framed entirely between two forms of chronic deprivation, is reinforced, not undermined, by these results.
     </div>
 
     <div class="references">
@@ -604,7 +595,7 @@
 "use strict";
 
 // =============================================================================
-// Model parameters — taken verbatim from the Stata do-file used to produce
+// Model parameters, taken verbatim from the Stata do-file used to produce
 // Moen J (2025) Cureus 17(10):e95729. See do-file Section 1 ("Parameter Catalog").
 //   sd_x = (high - low) / 3.92   (95% interval -> SD)
 // =============================================================================
@@ -638,7 +629,7 @@ const P = {
     lapMax: 142  // 99th-percentile cap empirically calibrated in the do-file
 };
 
-// Role / specialty modifiers — applied ONLY to outcomes the paper specifies.
+// Role / specialty modifiers, applied ONLY to outcomes the paper specifies.
 // Do not invent modifiers for outcomes the paper leaves unmodified.
 function modifiers(role, specialty) {
     let m_diag = 0, m_clin = 0, m_rt = 0;
@@ -751,7 +742,7 @@ function predict(sleepHours, role, specialty, chronicDebt) {
 // underlying impairment model uses.
 function bacEquivalence(d) {
     if (d <= 1)  return { text: "Comparable to a well-rested baseline.", danger: false };
-    if (d <= 2)  return { text: "Mild impairment — pre-clinical effects on vigilance.", danger: false };
+    if (d <= 2)  return { text: "Mild impairment with pre-clinical effects on vigilance.", danger: false };
     if (d <= 3)  return { text: "Comparable to a blood alcohol concentration of ~0.03%.", danger: false };
     if (d <= 4)  return { text: "Comparable to a blood alcohol concentration of ~0.05%.", danger: false };
     if (d <= 6)  return { text: "Comparable to a blood alcohol concentration of ~0.08% (legally impaired for driving in most U.S. states).", danger: true };
@@ -801,7 +792,7 @@ const els = {
 // have to recompute (and so they always show what the user is actually seeing).
 let lastResult = null;
 
-function fmt(n, digits) { return Number.isFinite(n) ? n.toFixed(digits) : "—"; }
+function fmt(n, digits) { return Number.isFinite(n) ? n.toFixed(digits) : ""; }
 function ci(lo, hi, digits, unit) {
     return `95% range: ${fmt(lo, digits)}–${fmt(hi, digits)}${unit || ""}`;
 }
@@ -823,15 +814,15 @@ function renderNarrative(r, hours, role, specialty, chronicDebt) {
 
     let lede;
     if (r.d <= 0.5) {
-        lede = `<strong>At ${hours} h of sleep tonight you're near a rested baseline</strong> — predicted medical-error probability ~${r.err.v.toFixed(1)}%, comparable to a well-functioning shift.`;
+        lede = `<strong>At ${hours} h of sleep tonight you're near a rested baseline</strong>; predicted medical-error probability is ~${r.err.v.toFixed(1)}%, comparable to a well-functioning shift.`;
     } else if (errMult >= 1.05) {
-        lede = `<strong>At ${hours} h of sleep, your expected medical-error rate is ${r.err.v.toFixed(1)}%</strong> — about ${errMult.toFixed(1)}× the rested baseline of ${rested.err.v.toFixed(1)}% (${errDelta >= 0 ? "+" : ""}${errDelta.toFixed(1)} percentage points).`;
+        lede = `<strong>At ${hours} h of sleep, your expected medical-error rate is ${r.err.v.toFixed(1)}%</strong>, about ${errMult.toFixed(1)}× the rested baseline of ${rested.err.v.toFixed(1)}% (${errDelta >= 0 ? "+" : ""}${errDelta.toFixed(1)} percentage points).`;
     } else {
         lede = `<strong>At ${hours} h of sleep, your expected medical-error rate is ${r.err.v.toFixed(1)}%</strong>, close to the rested baseline of ${rested.err.v.toFixed(1)}%.`;
     }
 
     const bacLine = r.d > 0.5
-        ? `Reaction time slows by ${Math.max(0, rtDelta).toFixed(0)} ms — ${eq.text.replace(/\.$/, "").toLowerCase()}.`
+        ? `Reaction time slows by ${Math.max(0, rtDelta).toFixed(0)} ms, ${eq.text.replace(/\.$/, "").toLowerCase()}.`
         : `Reaction time is at your rested baseline.`;
 
     const compositeLine = `Across the four performance domains, you're operating at <strong>${compositePct.toFixed(0)}%</strong> of a rested ${SPEC_LABEL[specialty]} ${ROLE_LABEL[role]}.`;
@@ -930,8 +921,7 @@ const shiftEls = {
     lengthSlider: document.getElementById("shiftLengthSlider"),
     prior:        document.getElementById("priorSleep"),
     priorSlider:  document.getElementById("priorSleepSlider"),
-    summary:      document.getElementById("shiftSummary"),
-    chart:        document.getElementById("shiftChart")
+    summary:      document.getElementById("shiftSummary")
 };
 
 const PRE_SHIFT_WAKE_HOURS = 2;   // assume 2h between waking and shift start
@@ -959,57 +949,6 @@ function shiftSyncInput(source, target) {
     renderShift();
 }
 
-function buildShiftChart(trajectory) {
-    const W = 520, H = 200, padL = 36, padR = 14, padT = 14, padB = 40;
-    const innerW = W - padL - padR;
-    const innerH = H - padT - padB;
-    const n = trajectory.length;
-    const barGap = 2;
-    const barW = (innerW / n) - barGap;
-    // Y axis: error probability (%) from 0 to a sensible max
-    const yMax = Math.max(15, Math.ceil(Math.max(...trajectory.map(p => p.err)) / 5) * 5);
-    const yScale = v => padT + innerH - (v / yMax) * innerH;
-
-    function barColor(d) {
-        // Colors keyed to BAC-equivalent thresholds in the published model.
-        if (d <= 1) return "#2f9e44";        // rested → green
-        if (d <= 3) return "#f59f00";        // mild → amber
-        if (d <= 5) return "#e8590c";        // BAC ~0.05–0.08 → orange
-        return "#c92a2a";                    // BAC >0.08 → red
-    }
-
-    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted medical-error probability across the shift">`;
-    // Y axis ticks
-    for (let i = 0; i <= 4; i++) {
-        const v = (yMax / 4) * i;
-        const y = yScale(v);
-        svg += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e9ecef" stroke-width="1" />`;
-        svg += `<text x="${padL - 6}" y="${y + 4}" text-anchor="end" font-size="10" fill="#888">${v.toFixed(0)}%</text>`;
-    }
-    // Hour-16 marker
-    const hour16Idx = trajectory.findIndex(p => p.hour === 16);
-    if (hour16Idx > 0) {
-        const x16 = padL + hour16Idx * (barW + barGap) + barW / 2;
-        svg += `<line x1="${x16}" y1="${padT}" x2="${x16}" y2="${padT + innerH}" stroke="#003366" stroke-width="1" stroke-dasharray="3,3" />`;
-        svg += `<text x="${x16}" y="${padT + 10}" text-anchor="middle" font-size="9" fill="#003366" font-weight="600">16h cap</text>`;
-    }
-    // Bars
-    trajectory.forEach((p, i) => {
-        const x = padL + i * (barW + barGap);
-        const y = yScale(p.err);
-        const h = padT + innerH - y;
-        svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="${barColor(p.d)}" rx="2" />`;
-        if (p.hour % 4 === 0 || p.hour === trajectory[trajectory.length - 1].hour) {
-            svg += `<text x="${x + barW / 2}" y="${padT + innerH + 14}" text-anchor="middle" font-size="10" fill="#555">${p.hour}h</text>`;
-        }
-    });
-    // Axis titles
-    svg += `<text x="${padL + innerW / 2}" y="${H - 6}" text-anchor="middle" font-size="11" fill="#555">Hours into shift</text>`;
-    svg += `<text x="10" y="${padT + innerH / 2}" font-size="11" fill="#555" transform="rotate(-90 10 ${padT + innerH / 2})" text-anchor="middle">Medical-error probability</text>`;
-    svg += `</svg>`;
-    return svg;
-}
-
 function renderShift() {
     const shiftLen   = clip(parseFloat(shiftEls.length.value) || 0, 12, 30);
     const priorSleep = clip(parseFloat(shiftEls.prior.value) || 0, 3, 9);
@@ -1034,10 +973,8 @@ function renderShift() {
     shiftEls.summary.innerHTML =
         `<div><strong>Hour 0:</strong> RT ${start.rt.toFixed(0)} ms · error ${start.err.toFixed(1)}%</div>` +
         `<div><strong>Hour 16 (current ACGME cap):</strong> RT ${h16.rt.toFixed(0)} ms · error ${h16.err.toFixed(1)}%</div>` +
-        `<div><strong>Hour ${end.hour} (end of shift):</strong> RT ${end.rt.toFixed(0)} ms · error ${end.err.toFixed(1)}% — ${(end.err / restedErr).toFixed(1)}× the rested baseline.</div>` +
+        `<div><strong>Hour ${end.hour} (end of shift):</strong> RT ${end.rt.toFixed(0)} ms · error ${end.err.toFixed(1)}%, ${(end.err / restedErr).toFixed(1)}× the rested baseline.</div>` +
         `<div style="margin-top:6px; font-style:italic;">${eqEnd.text}</div>`;
-
-    shiftEls.chart.innerHTML = buildShiftChart(trajectory);
 }
 
 shiftEls.length.addEventListener("input",       e => shiftSyncInput(e.target, shiftEls.lengthSlider));
@@ -1046,10 +983,10 @@ shiftEls.prior.addEventListener("input",        e => shiftSyncInput(e.target, sh
 shiftEls.priorSlider.addEventListener("input",  e => shiftSyncInput(e.target, shiftEls.prior));
 
 // =============================================================================
-// Share — image and text
+// Share: image and text
 // =============================================================================
 const SITE_URL = "https://ucdhealthjm.github.io/Performance-Calculator/";
-const CITATION = "Moen J. Cureus 17(10): e95729 (2025) — doi:10.7759/cureus.95729";
+const CITATION = "Moen J. Cureus 17(10): e95729 (2025). doi:10.7759/cureus.95729";
 
 // Render the user's current result to a 1200x630 canvas. Drawn fresh on every
 // click so the image always matches what's on screen.
@@ -1084,7 +1021,7 @@ function buildShareCanvas(state) {
     ctx.font = "400 32px -apple-system, 'Helvetica Neue', Arial, sans-serif";
     ctx.fillText(`At ${hours} hours of sleep tonight:`, 50, 195);
 
-    // Headline number — error rate, the most arresting metric
+    // Headline number: error rate, the most arresting metric
     ctx.fillStyle = "#0056b3";
     ctx.font = "700 120px -apple-system, 'Helvetica Neue', Arial, sans-serif";
     const headline = `${r.err.v.toFixed(1)}%`;
@@ -1155,7 +1092,7 @@ async function downloadShareImage() {
         } catch (_) { /* clipboard not granted; download still worked */ }
 
         flashStatus(clipped
-            ? `Saved ${fname} and copied image to clipboard — paste it anywhere.`
+            ? `Saved ${fname} and copied image to clipboard; paste it anywhere.`
             : `Saved ${fname} to your Downloads folder.`);
     }, "image/png");
 }
@@ -1167,7 +1104,7 @@ function buildShareText(state) {
     const eq = bacEquivalence(r.d);
     const chronicTag = chronicDebt ? " (with post-publication chronic-debt extension)" : "";
     return [
-        `At ${hours} hours of sleep, a ${ROLE_LABEL[role]}'s expected medical-error rate is ${r.err.v.toFixed(1)}%${chronicTag} — about ${errMult}× the rested baseline.`,
+        `At ${hours} hours of sleep, a ${ROLE_LABEL[role]}'s expected medical-error rate is ${r.err.v.toFixed(1)}%${chronicTag}, about ${errMult}× the rested baseline.`,
         `Reaction time: ${r.rt.v.toFixed(0)} ms (${eq.text.replace(/\.$/, "").toLowerCase()}).`,
         ``,
         `Try it: ${SITE_URL}`,
@@ -1180,7 +1117,7 @@ async function copyShareText() {
     const txt = buildShareText(lastResult);
     try {
         await navigator.clipboard.writeText(txt);
-        flashStatus("Share text copied — paste into X, LinkedIn, or iMessage.");
+        flashStatus("Share text copied; paste into X, LinkedIn, or iMessage.");
     } catch (_) {
         // Fallback: open a prompt the user can copy from
         window.prompt("Copy this:", txt);
