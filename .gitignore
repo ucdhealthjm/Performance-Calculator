@@ -1,3 +1,8 @@
 .DS_Store
 .claude/
 *.docx
+*.pdf
+
+# Private working materials, not for the public repo
+CUREUS_CORRECTION_EMAIL.md
+performance_calculatorindex.html
