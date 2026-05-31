@@ -45,7 +45,8 @@
             margin: 0;
             padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            align-items: center;
             min-height: 100vh;
         }
         .container {
@@ -71,6 +72,7 @@
             border-bottom: 1px solid #e0e0e0;
             margin-bottom: 20px;
         }
+        .outputs { width: 100%; }
         @media (min-width: 760px) {
             .inputs {
                 width: 32%;
@@ -81,7 +83,6 @@
             }
             .outputs { width: 68%; padding-left: 25px; }
         }
-        .outputs { width: 100%; }
         h2 { font-size: 1.1em; color: var(--navy); margin: 0 0 14px; }
         .input-group { margin-bottom: 16px; }
         .input-group label { display: block; font-weight: 600; margin-bottom: 6px; color: #555; font-size: 0.9em; }
@@ -183,6 +184,167 @@
             margin-top: 6px;
             min-height: 1.1em;
         }
+
+        /* ==========================================================
+           Post-publication Shift Profile panel
+           ========================================================== */
+        .shift-panel {
+            width: 100%;
+            max-width: 980px;
+            margin: 24px auto 0;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 2px dashed #ffe58f;
+        }
+        .shift-panel .panel-header {
+            background: #fff7e6;
+            color: var(--warn-text);
+            padding: 18px 25px;
+            border-bottom: 1px solid #ffe58f;
+        }
+        .shift-panel .panel-header .pp-kicker {
+            font-size: 0.72em;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+        .shift-panel .panel-header h2 {
+            color: var(--navy);
+            margin: 0 0 6px;
+            font-size: 1.35em;
+        }
+        .shift-panel .panel-header p {
+            font-size: 0.88em;
+            margin: 0;
+            color: #5a4400;
+            line-height: 1.5;
+        }
+        .shift-body {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            padding: 22px 25px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        @media (min-width: 760px) {
+            .shift-body { grid-template-columns: 1fr 1.4fr; }
+        }
+        .shift-body h3 {
+            font-size: 1em;
+            color: var(--navy);
+            margin: 0 0 12px;
+        }
+        .shift-summary {
+            font-size: 0.92em;
+            line-height: 1.55;
+            color: #1a3556;
+            background: #f0f6ff;
+            border: 1px solid #cfe2ff;
+            border-radius: 8px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+        }
+        .shift-summary strong { color: var(--navy); }
+        .shift-chart {
+            background: #fafafa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 10px;
+        }
+        .shift-chart svg { display: block; width: 100%; height: auto; }
+
+        .empirical {
+            padding: 22px 25px;
+            background: #fafbfc;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .empirical h3 {
+            color: var(--navy);
+            margin: 0 0 14px;
+            font-size: 1.05em;
+        }
+        .empirical-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+        @media (min-width: 760px) {
+            .empirical-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .empirical-card {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+        .empirical-card h4 {
+            margin: 0 0 8px;
+            color: var(--navy);
+            font-size: 0.95em;
+        }
+        .empirical-card ul {
+            margin: 0;
+            padding-left: 18px;
+            font-size: 0.86em;
+            line-height: 1.55;
+            color: #333;
+        }
+        .empirical-card li { margin-bottom: 4px; }
+        .empirical-card em {
+            color: var(--muted);
+            font-style: normal;
+            font-size: 0.92em;
+        }
+        .empirical-card .takeaway {
+            margin: 10px 0 0;
+            padding-top: 8px;
+            border-top: 1px solid #f0f0f0;
+            font-size: 0.86em;
+            font-weight: 600;
+            color: var(--navy);
+        }
+
+        .callout {
+            margin: 18px 25px;
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-size: 0.92em;
+            line-height: 1.55;
+        }
+        .callout.conclusion {
+            background: #e7f5ff;
+            border: 1px solid #a5d8ff;
+            color: #1864ab;
+        }
+        .callout.caveat {
+            background: #fff7e6;
+            border: 1px solid #ffe58f;
+            color: #5a4400;
+        }
+        .callout strong { color: inherit; }
+
+        .references {
+            padding: 18px 25px 22px;
+            background: #fafbfc;
+            border-top: 1px solid #e9ecef;
+        }
+        .references h3 {
+            color: var(--navy);
+            margin: 0 0 12px;
+            font-size: 1em;
+        }
+        .references ol {
+            margin: 0;
+            padding-left: 22px;
+            font-size: 0.82em;
+            line-height: 1.55;
+            color: #333;
+        }
+        .references li { margin-bottom: 6px; }
+        .references a { color: var(--navy); word-break: break-word; }
         .footer {
             background: #e9ecef;
             padding: 14px 20px;
@@ -320,6 +482,121 @@
         (2) <em>Optional chronic-debt toggle (off by default):</em> inflates error and lapse slopes by ~1.5× per Belenky et al., <em>Sleep</em> 2003. When on, the "extended model" badge appears next to the results header.
         <br><br>
         Source code, Stata do-file, and full concordance table: <a href="#" id="repoLink">GitHub</a>.
+    </div>
+</div>
+
+<!-- ============================================================
+     POST-PUBLICATION ADDENDUM
+     Shift Profile panel — not part of Moen 2025, Cureus 17(10): e95729.
+     Inputs above (role, specialty, chronic-debt) are inherited.
+     ============================================================ -->
+<div class="shift-panel" id="shiftPanel">
+    <div class="panel-header">
+        <div class="pp-kicker">Post-publication addendum · not part of the published paper</div>
+        <h2>Shift Profile — what does the marginal hour buy?</h2>
+        <p>This panel models predicted physician performance across the hours of a single shift, then compares those predictions to what large randomized trials of duty-hour flexibility actually observed when shifts were extended past 16 hours. Role, specialty, and chronic-debt selections from the calculator above are inherited.</p>
+    </div>
+
+    <div class="shift-body">
+        <div>
+            <h3>Shift parameters</h3>
+            <div class="input-group">
+                <label for="shiftLength">Shift length (hours)</label>
+                <div class="slider-row">
+                    <input type="range" id="shiftLengthSlider" min="12" max="30" step="1" value="24">
+                    <input type="number" id="shiftLength" class="num" min="12" max="30" step="1" value="24">
+                </div>
+            </div>
+            <div class="input-group">
+                <label for="priorSleep">Hours of sleep the night before</label>
+                <div class="slider-row">
+                    <input type="range" id="priorSleepSlider" min="3" max="9" step="0.5" value="6">
+                    <input type="number" id="priorSleep" class="num" min="3" max="9" step="0.5" value="6">
+                </div>
+            </div>
+            <div style="font-size:0.78em; color:var(--muted); margin-top:6px;">
+                The trajectory model assumes the shift starts after ~2 hours of pre-shift wake time. Within-shift impairment grows once total wake time exceeds ~16 hours, anchored to Williamson 2000 and Arnedt 2005. The per-hour sleep-debt accumulation rate is a post-publication modeling assumption, not derived in the source paper.
+            </div>
+        </div>
+
+        <div>
+            <h3>Predicted performance trajectory</h3>
+            <div id="shiftSummary" class="shift-summary" aria-live="polite"></div>
+            <div id="shiftChart" class="shift-chart"></div>
+        </div>
+    </div>
+
+    <div class="empirical">
+        <h3>What randomized trials observed when shifts were allowed to extend past 16 hours</h3>
+        <div class="empirical-grid">
+            <div class="empirical-card">
+                <h4>Patient outcomes — noninferior in every measure</h4>
+                <ul>
+                    <li>30-day mortality: <strong>12.5% vs 12.2%</strong> (flexible vs standard). <em>iCOMPARE patient safety [3]</em></li>
+                    <li>7-day readmission/death: 16.9% vs 16.6%. <em>iCOMPARE [3]</em></li>
+                    <li>30-day readmission/death: 29.9% vs 29.3%. <em>iCOMPARE [3]</em></li>
+                    <li>30-day death or serious surgical complication: <strong>9.1% vs 9.0%</strong> (n = 138,691). <em>FIRST trial [1]</em></li>
+                </ul>
+                <p class="takeaway">Allowing extended shifts produced no measurable patient benefit.</p>
+            </div>
+
+            <div class="empirical-card">
+                <h4>Education and training — no improvement</h4>
+                <ul>
+                    <li>In-training exam score: <strong>68.9% vs 69.4%</strong> (flexible vs standard). <em>iCOMPARE education [2]</em></li>
+                    <li>ABSITE scores were unchanged across the 2011 ACGME shift restriction. <em>Rajaram 2014 [5]</em></li>
+                    <li>Direct patient-care time: 13.0% vs 11.8% (NS). <em>iCOMPARE [2]</em></li>
+                    <li>Education time: <strong>7.3% vs 7.3% — identical</strong>. <em>iCOMPARE [2]</em></li>
+                    <li>Dissatisfaction with education quality: 11.0% vs 10.7%. <em>FIRST trial [1]</em></li>
+                </ul>
+                <p class="takeaway">No objective knowledge measure, education-time measure, or training-satisfaction measure improved with longer shifts.</p>
+            </div>
+
+            <div class="empirical-card">
+                <h4>Trainee well-being — substantially worse</h4>
+                <ul>
+                    <li>Dissatisfied with overall well-being: <strong>30% vs 15%</strong> (2.5×). <em>iCOMPARE [2]</em></li>
+                    <li>Dissatisfied with personal-life impact: <strong>33% vs 7%</strong> (6.1×). <em>iCOMPARE [2]</em></li>
+                    <li>Dissatisfied with morale: <strong>24% vs 4%</strong> (8.1×). <em>iCOMPARE [2]</em></li>
+                    <li>Reported fatigue affecting patient safety: 12% vs 7% (2.0×). <em>iCOMPARE [2]</em></li>
+                    <li>Reported fatigue affecting personal safety: 16% vs 8% (2.0×). <em>iCOMPARE [2]</em></li>
+                    <li>FIRST trial: surgical residents reported worse domains for time with family (3.66×), rest (3.85×), health (3.22×). <em>[1]</em></li>
+                </ul>
+                <p class="takeaway">Every well-being and self-reported safety measure was worse under extended shifts.</p>
+            </div>
+
+            <div class="empirical-card">
+                <h4>Alertness on overnight extended shifts — measurable deficit</h4>
+                <ul>
+                    <li>On the second day of an extended overnight shift, interns averaged <strong>5.12 h</strong> sleep per 24 h vs <strong>7.35 h</strong> on standard night-shift days. <em>iCOMPARE sleep substudy [4]</em></li>
+                    <li>Karolinska Sleepiness Score on the post-extended-shift morning averaged <strong>6.8 / 9</strong> ("sleepy, but no effort to stay awake"). <em>[4]</em></li>
+                    <li><strong>87.7%</strong> of post-extended-shift mornings included reported excessive sleepiness; <strong>38.6%</strong> reached "sleepy, fighting sleep" or "extremely sleepy." <em>[4]</em></li>
+                    <li>Objectively measured alertness (PVT lapses) <strong>did not meet noninferiority criteria</strong>. <em>[4]</em></li>
+                </ul>
+                <p class="takeaway">Even with strategic pre- and post-shift sleep, the post-shift alertness deficit is measurable and consistent.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="callout conclusion">
+        The hypothesis that more hours produces more competent physicians has been tested. Across iCOMPARE, FIRST, and the 2011 ACGME natural experiment, neither patient outcomes nor knowledge tests nor education time improved when shifts were extended past 16 hours. Self-reported well-being and post-shift alertness consistently worsened. The shift-profile model's prediction — that the marginal hour past 16 produces continued performance decay without compensating benefit — is consistent with what these trials actually observed.
+    </div>
+
+    <div class="callout caveat">
+        <strong>What these trials did not test.</strong> Every cited duty-hour trial compared one chronically-deprived schedule (≤ 16 h shifts, 80 h/wk, ~6–7 h average sleep) to another (≥ 24 h shifts, 80 h/wk, ~6–7 h average sleep). None tested a recovery-centric comparator with protected ≥ 7 h nightly sleep. The published paper's central argument — that the duty-hour debate has been framed entirely between two forms of chronic deprivation — is reinforced, not undermined, by these results.
+    </div>
+
+    <div class="references">
+        <h3>References cited in this panel</h3>
+        <ol>
+            <li>Bilimoria KY, Chung JW, Hedges LV, et al. National cluster-randomized trial of duty-hour flexibility in surgical training (FIRST). <em>N Engl J Med</em> 2016;374:713–727. <a href="https://doi.org/10.1056/NEJMoa1515724" target="_blank" rel="noopener">doi:10.1056/NEJMoa1515724</a></li>
+            <li>Desai SV, Asch DA, Bellini LM, et al. Education outcomes in a duty-hour flexibility trial in internal medicine (iCOMPARE). <em>N Engl J Med</em> 2018;378:1494–1508. <a href="https://doi.org/10.1056/NEJMoa1800965" target="_blank" rel="noopener">doi:10.1056/NEJMoa1800965</a></li>
+            <li>Silber JH, Bellini LM, Shea JA, et al. Patient safety outcomes under flexible and standard resident duty-hour rules (iCOMPARE). <em>N Engl J Med</em> 2019;380:905–914. <a href="https://doi.org/10.1056/NEJMoa1810642" target="_blank" rel="noopener">doi:10.1056/NEJMoa1810642</a></li>
+            <li>Basner M, Asch DA, Shea JA, et al. Sleep and alertness in a duty-hour flexibility trial in internal medicine (iCOMPARE). <em>N Engl J Med</em> 2019;380:915–923. <a href="https://doi.org/10.1056/NEJMoa1810641" target="_blank" rel="noopener">doi:10.1056/NEJMoa1810641</a></li>
+            <li>Rajaram R, Chung JW, Jones AT, et al. Association of the 2011 ACGME resident duty hour reform with general surgery patient outcomes and with resident examination performance. <em>JAMA</em> 2014;312:2374–2384. <a href="https://doi.org/10.1001/jama.2014.15277" target="_blank" rel="noopener">doi:10.1001/jama.2014.15277</a></li>
+            <li>Barger LK, Sullivan JP, Blackwell T, et al. Effects on resident work hours, sleep duration, and work experience in a randomized order safety trial evaluating resident-physician schedules (ROSTERS). <em>Sleep</em> 2019;42:zsz110. <a href="https://doi.org/10.1093/sleep/zsz110" target="_blank" rel="noopener">doi:10.1093/sleep/zsz110</a></li>
+            <li>Barger LK, Weaver MD, Sullivan JP, et al. Impact of work schedules of senior resident physicians on patient and resident physician safety: nationwide, prospective cohort study. <em>BMJ Med</em> 2023;2:e000320. <a href="https://doi.org/10.1136/bmjmed-2022-000320" target="_blank" rel="noopener">doi:10.1136/bmjmed-2022-000320</a></li>
+        </ol>
     </div>
 </div>
 
@@ -633,9 +910,140 @@ function syncSleep(source) {
 
 els.sleep.addEventListener("input",        e => syncSleep(e.target));
 els.sleepSlider.addEventListener("input",  e => syncSleep(e.target));
-els.role.addEventListener("change",        render);
-els.specialty.addEventListener("change",   render);
-els.chronicDebt.addEventListener("change", render);
+els.role.addEventListener("change",        () => { render(); renderShift(); });
+els.specialty.addEventListener("change",   () => { render(); renderShift(); });
+els.chronicDebt.addEventListener("change", () => { render(); renderShift(); });
+
+// =============================================================================
+// Shift Profile (post-publication addendum)
+//
+// Models within-shift performance trajectory by computing an "effective sleep
+// debt" at each hour of the shift. Effective debt = baseline debt (from prior
+// night's sleep) + accumulated wake-time debt once total wake hours exceed 16,
+// anchored to the Williamson 2000 / Arnedt 2005 dose-response thresholds.
+//
+// The per-hour wake-debt accumulation rate (0.5 h debt per wake hour past 16)
+// is a post-publication modeling assumption that is NOT in the source paper.
+// =============================================================================
+const shiftEls = {
+    length:       document.getElementById("shiftLength"),
+    lengthSlider: document.getElementById("shiftLengthSlider"),
+    prior:        document.getElementById("priorSleep"),
+    priorSlider:  document.getElementById("priorSleepSlider"),
+    summary:      document.getElementById("shiftSummary"),
+    chart:        document.getElementById("shiftChart")
+};
+
+const PRE_SHIFT_WAKE_HOURS = 2;   // assume 2h between waking and shift start
+const WAKE_DEBT_RATE       = 0.5; // each wake-hour past 16 adds 0.5h debt
+const WAKE_DEBT_THRESHOLD  = 16;  // hours awake before debt accumulation starts
+
+function effectiveDebt(hourIntoShift, priorSleep) {
+    const baseline    = Math.max(0, 8 - priorSleep);
+    const wakeHours   = PRE_SHIFT_WAKE_HOURS + hourIntoShift;
+    const accumulated = Math.max(0, (wakeHours - WAKE_DEBT_THRESHOLD) * WAKE_DEBT_RATE);
+    return baseline + accumulated;
+}
+
+// Convert effective debt back to a "virtual sleep hours" so we can reuse
+// predict() without forking the math.
+function predictAtShiftHour(hourIntoShift, priorSleep, role, specialty, chronicDebt) {
+    const d = effectiveDebt(hourIntoShift, priorSleep);
+    const virtualSleep = 8 - d;
+    return predict(virtualSleep, role, specialty, chronicDebt);
+}
+
+function shiftSyncInput(source, target) {
+    const v = clip(parseFloat(source.value) || 0, parseFloat(source.min), parseFloat(source.max));
+    source.value = v; target.value = v;
+    renderShift();
+}
+
+function buildShiftChart(trajectory) {
+    const W = 520, H = 200, padL = 36, padR = 14, padT = 14, padB = 40;
+    const innerW = W - padL - padR;
+    const innerH = H - padT - padB;
+    const n = trajectory.length;
+    const barGap = 2;
+    const barW = (innerW / n) - barGap;
+    // Y axis: error probability (%) from 0 to a sensible max
+    const yMax = Math.max(15, Math.ceil(Math.max(...trajectory.map(p => p.err)) / 5) * 5);
+    const yScale = v => padT + innerH - (v / yMax) * innerH;
+
+    function barColor(d) {
+        // Colors keyed to BAC-equivalent thresholds in the published model.
+        if (d <= 1) return "#2f9e44";        // rested → green
+        if (d <= 3) return "#f59f00";        // mild → amber
+        if (d <= 5) return "#e8590c";        // BAC ~0.05–0.08 → orange
+        return "#c92a2a";                    // BAC >0.08 → red
+    }
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Predicted medical-error probability across the shift">`;
+    // Y axis ticks
+    for (let i = 0; i <= 4; i++) {
+        const v = (yMax / 4) * i;
+        const y = yScale(v);
+        svg += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e9ecef" stroke-width="1" />`;
+        svg += `<text x="${padL - 6}" y="${y + 4}" text-anchor="end" font-size="10" fill="#888">${v.toFixed(0)}%</text>`;
+    }
+    // Hour-16 marker
+    const hour16Idx = trajectory.findIndex(p => p.hour === 16);
+    if (hour16Idx > 0) {
+        const x16 = padL + hour16Idx * (barW + barGap) + barW / 2;
+        svg += `<line x1="${x16}" y1="${padT}" x2="${x16}" y2="${padT + innerH}" stroke="#003366" stroke-width="1" stroke-dasharray="3,3" />`;
+        svg += `<text x="${x16}" y="${padT + 10}" text-anchor="middle" font-size="9" fill="#003366" font-weight="600">16h cap</text>`;
+    }
+    // Bars
+    trajectory.forEach((p, i) => {
+        const x = padL + i * (barW + barGap);
+        const y = yScale(p.err);
+        const h = padT + innerH - y;
+        svg += `<rect x="${x}" y="${y}" width="${barW}" height="${h}" fill="${barColor(p.d)}" rx="2" />`;
+        if (p.hour % 4 === 0 || p.hour === trajectory[trajectory.length - 1].hour) {
+            svg += `<text x="${x + barW / 2}" y="${padT + innerH + 14}" text-anchor="middle" font-size="10" fill="#555">${p.hour}h</text>`;
+        }
+    });
+    // Axis titles
+    svg += `<text x="${padL + innerW / 2}" y="${H - 6}" text-anchor="middle" font-size="11" fill="#555">Hours into shift</text>`;
+    svg += `<text x="10" y="${padT + innerH / 2}" font-size="11" fill="#555" transform="rotate(-90 10 ${padT + innerH / 2})" text-anchor="middle">Medical-error probability</text>`;
+    svg += `</svg>`;
+    return svg;
+}
+
+function renderShift() {
+    const shiftLen   = clip(parseFloat(shiftEls.length.value) || 0, 12, 30);
+    const priorSleep = clip(parseFloat(shiftEls.prior.value) || 0, 3, 9);
+    const role       = els.role.value;
+    const specialty  = els.specialty.value;
+    const chronicDebt = els.chronicDebt.checked;
+
+    // Build hourly trajectory across the shift.
+    const trajectory = [];
+    for (let h = 0; h <= shiftLen; h++) {
+        const r = predictAtShiftHour(h, priorSleep, role, specialty, chronicDebt);
+        trajectory.push({ hour: h, d: r.d, rt: r.rt.v, err: r.err.v });
+    }
+
+    // Key anchor points for the summary text.
+    const start = trajectory[0];
+    const h16   = trajectory.find(p => p.hour === 16) || trajectory[trajectory.length - 1];
+    const end   = trajectory[trajectory.length - 1];
+    const restedErr = predictAtShiftHour(0, 8, role, specialty, chronicDebt).err.v;
+
+    const eqEnd = bacEquivalence(end.d);
+    shiftEls.summary.innerHTML =
+        `<div><strong>Hour 0:</strong> RT ${start.rt.toFixed(0)} ms · error ${start.err.toFixed(1)}%</div>` +
+        `<div><strong>Hour 16 (current ACGME cap):</strong> RT ${h16.rt.toFixed(0)} ms · error ${h16.err.toFixed(1)}%</div>` +
+        `<div><strong>Hour ${end.hour} (end of shift):</strong> RT ${end.rt.toFixed(0)} ms · error ${end.err.toFixed(1)}% — ${(end.err / restedErr).toFixed(1)}× the rested baseline.</div>` +
+        `<div style="margin-top:6px; font-style:italic;">${eqEnd.text}</div>`;
+
+    shiftEls.chart.innerHTML = buildShiftChart(trajectory);
+}
+
+shiftEls.length.addEventListener("input",       e => shiftSyncInput(e.target, shiftEls.lengthSlider));
+shiftEls.lengthSlider.addEventListener("input", e => shiftSyncInput(e.target, shiftEls.length));
+shiftEls.prior.addEventListener("input",        e => shiftSyncInput(e.target, shiftEls.priorSlider));
+shiftEls.priorSlider.addEventListener("input",  e => shiftSyncInput(e.target, shiftEls.prior));
 
 // =============================================================================
 // Share — image and text
@@ -787,6 +1195,7 @@ els.copyText.addEventListener("click",  copyShareText);
 els.repoLink.href = "https://github.com/ucdhealthjm/Performance-Calculator";
 
 render();
+renderShift();
 </script>
 </body>
 </html>
