@@ -46,6 +46,18 @@ Role/specialty modifiers (`m_*`) are applied only to the outcomes the do-file sp
 
 Cognitive-state (BAC) equivalences are mapped from sleep debt using Williamson & Feyer (2000, *Occup Environ Med*) and Arnedt et al. (2005, *JAMA*), as referenced in the paper's Materials and Methods.
 
+## External concordance
+
+The simulation is a synthesis, not new empirical data — but two NIH-funded multicenter studies from the Brigham/Harvard Sleep Medicine group provide independent comparison points at sleep levels the model spans. Concordance with these prospective cohorts is meaningful evidence that the dose-response shape is right.
+
+| Comparison | Source | Observed effect | Predicted by this model | Verdict |
+|---|---|---|---|---|
+| **Per extended-duration shift (~2.5 h sleep) vs. none** | Barger et al. *BMJMed* 2023 (n=4,826 PGY2+ residents, 38,702 monthly reports) | OR **1.84** for medical error per ≥1 extended shift/mo | Per-night 2.5 h vs. 7 h → predicted error-rate ratio **2.05×** | **Concordant** — model reproduces a directly observed odds ratio to within ~10% |
+| **Schedule that gains ~0.55 h/night** (RCWR vs. EDWR) | Barger et al. *Sleep* 2019 (ROSTERS; n=302 pediatric residents, 6 sites, cluster-randomized crossover) | Improved PVT reaction time and fewer attentional failures on RCWR; modest medical-error reduction (companion report) | 7.0 h → 7.6 h sleep predicts ~7% relative error reduction and ~9 ms faster RT | **Directionally concordant** |
+| **>80 vs. ≤48 weekly work hours** | Barger et al. *BMJMed* 2023 | OR **4.01** for medical error | Predicted ratio from acute-sleep difference alone ~**1.3–1.5×** | **Model under-predicts by ~3×** (see framing below) |
+
+**On the third row — why the under-prediction is a feature, not a bug.** This model is a *pure acute nightly-sleep dose-response*. It deliberately does not include workload, between-shift recovery, chronic multi-night debt, or shift-length effects independent of sleep. Field studies that bucket residents by weekly work hours capture all of those at once. The fact that the Barger 2023 OR of 4.0 at >80 h/wk exceeds our acute-sleep predictions by roughly 3× is consistent with this: work-hour effects in field studies aggregate sleep loss with workload, recovery, and chronic accumulation — none of which are modeled here. **The calculator should be interpreted as a lower bound on real-world impairment.** Adding the optional "chronic sleep debt" toggle in the calculator inflates the error and lapse coefficients by ~1.5× per Belenky et al. 2003 (*Sleep*) and partially closes this gap.
+
 ## Why this repository was rebuilt
 
 A previous public version of this calculator (at `j-amo.github.io/Performance-Calculator/`, cited in the published paper) implemented a secondary regression fit to simulated output rather than the original equations from the do-file. That version had multiple errors: it used a 7-hour rather than 8-hour baseline, omitted all quadratic terms, omitted diagnostic accuracy, mood, and burnout, used the wrong intercept for reaction time (265 vs 280 ms) and lapses (`exp(−0.31)` vs `exp(−1)`), nearly doubled the medical-error slope, and listed specialties and modifiers not present in the source do-file. This rebuild restores the published equations exactly. A correction notice has been submitted to *Cureus*.
