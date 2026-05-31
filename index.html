@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Performance Sleep Calculator</title>
+    <meta name="description" content="Companion calculator to Moen J (2025), Cureus 17(10): e95729. Predicts physician performance, error risk, and well-being as a function of nightly sleep, using the Monte Carlo dose-response model from the paper.">
+    <style>
+        :root {
+            --navy: #003366;
+            --blue: #0056b3;
+            --bg: #f4f7f9;
+            --card: #f8f9fa;
+            --card-border: #e9ecef;
+            --muted: #6c757d;
+            --warn-bg: #fffbe6;
+            --warn-border: #ffe58f;
+            --warn-text: #664d03;
+            --danger-bg: #fde2e2;
+            --danger-border: #f5b7b1;
+            --danger-text: #842029;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 980px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: var(--navy);
+            color: white;
+            padding: 22px 25px;
+        }
+        .header h1 { margin: 0; font-size: 1.6em; }
+        .header p { margin: 8px 0 0; opacity: 0.9; font-size: 0.9em; line-height: 1.4; }
+        .header a { color: #cfe2ff; }
+        .calculator-body { display: flex; flex-wrap: wrap; padding: 25px; }
+        .inputs {
+            width: 100%;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        @media (min-width: 760px) {
+            .inputs {
+                width: 32%;
+                border-bottom: none;
+                border-right: 1px solid #e0e0e0;
+                padding-right: 25px;
+                margin-bottom: 0;
+            }
+            .outputs { width: 68%; padding-left: 25px; }
+        }
+        .outputs { width: 100%; }
+        h2 { font-size: 1.1em; color: var(--navy); margin: 0 0 14px; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; font-weight: 600; margin-bottom: 6px; color: #555; font-size: 0.9em; }
+        .input-group input, .input-group select {
+            width: 100%; padding: 9px;
+            border-radius: 5px; border: 1px solid #ccc;
+            font-size: 1em;
+        }
+        .slider-row { display: flex; align-items: center; gap: 10px; }
+        .slider-row input[type=range] { flex: 1; }
+        .slider-row .num { width: 56px; text-align: center; padding: 6px; font-weight: 600; }
+        .output-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        @media (min-width: 760px) {
+            .output-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        .output-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .output-card h3 {
+            margin: 0 0 6px; font-size: 0.85em; color: var(--navy);
+            display: flex; justify-content: space-between; align-items: baseline;
+        }
+        .output-card .unit { font-weight: 400; color: var(--muted); font-size: 0.85em; }
+        .output-value { font-size: 1.7em; font-weight: 700; color: var(--blue); line-height: 1; }
+        .output-ci { font-size: 0.75em; color: var(--muted); margin-top: 4px; }
+        .full-width { grid-column: 1 / -1; }
+        .equivalence-card {
+            background: var(--warn-bg);
+            border-color: var(--warn-border);
+            color: var(--warn-text);
+            text-align: center;
+            padding: 14px;
+        }
+        .equivalence-card.danger {
+            background: var(--danger-bg);
+            border-color: var(--danger-border);
+            color: var(--danger-text);
+        }
+        .equivalence-label { font-size: 0.8em; font-weight: 600; margin-bottom: 4px; }
+        .equivalence-value { font-size: 1.05em; font-weight: 600; }
+        .warning-card {
+            background: var(--danger-bg);
+            border: 1px solid var(--danger-border);
+            color: var(--danger-text);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 0.85em;
+            margin-top: 12px;
+            display: none;
+        }
+        .warning-card.show { display: block; }
+        .footer {
+            background: #e9ecef;
+            padding: 14px 20px;
+            font-size: 0.78em;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+        .footer a { color: var(--navy); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Medical Performance Sleep Calculator</h1>
+        <p>Companion to Moen J. <em>The Recovery Deficit: A Simulation Model of Physician Performance Under Sleep Deprivation.</em> Cureus 17(10): e95729 (2025). DOI <a href="https://doi.org/10.7759/cureus.95729" target="_blank" rel="noopener">10.7759/cureus.95729</a>.</p>
+    </div>
+
+    <div class="calculator-body">
+        <div class="inputs">
+            <h2>Your Inputs</h2>
+
+            <div class="input-group">
+                <label for="sleepHours">Hours of sleep tonight</label>
+                <div class="slider-row">
+                    <input type="range" id="sleepHoursSlider" min="0" max="9" step="0.1" value="5.5">
+                    <input type="number" id="sleepHours" class="num" min="0" max="9" step="0.1" value="5.5">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="role">Experience level</label>
+                <select id="role">
+                    <option value="student">Medical student</option>
+                    <option value="resident" selected>Resident</option>
+                    <option value="attending">Attending</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="specialty">Specialty</label>
+                <select id="specialty">
+                    <option value="emergency">Emergency Medicine</option>
+                    <option value="surgery">Surgery</option>
+                    <option value="internal" selected>Internal Medicine</option>
+                    <option value="psychiatry">Psychiatry</option>
+                </select>
+            </div>
+
+            <div class="warning-card" id="safetyWarning">
+                <strong>Patient-safety warning:</strong> predicted impairment is in a range associated with elevated medical-error risk.
+            </div>
+        </div>
+
+        <div class="outputs">
+            <h2>Predicted Performance (95% individual range)</h2>
+            <div class="output-grid">
+                <div class="output-card">
+                    <h3>Composite Performance <span class="unit">/100</span></h3>
+                    <div class="output-value" id="compositeVal">—</div>
+                    <div class="output-ci" id="compositeCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Reaction Time <span class="unit">ms</span></h3>
+                    <div class="output-value" id="rtVal">—</div>
+                    <div class="output-ci" id="rtCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Clinical Accuracy <span class="unit">%</span></h3>
+                    <div class="output-value" id="clinVal">—</div>
+                    <div class="output-ci" id="clinCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Diagnostic Accuracy <span class="unit">%</span></h3>
+                    <div class="output-value" id="diagVal">—</div>
+                    <div class="output-ci" id="diagCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Attentional Lapses <span class="unit">expected count</span></h3>
+                    <div class="output-value" id="lapsVal">—</div>
+                    <div class="output-ci" id="lapsCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Medical Error Probability <span class="unit">%</span></h3>
+                    <div class="output-value" id="errVal">—</div>
+                    <div class="output-ci" id="errCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Mood <span class="unit">/100</span></h3>
+                    <div class="output-value" id="moodVal">—</div>
+                    <div class="output-ci" id="moodCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Burnout Probability <span class="unit">%</span></h3>
+                    <div class="output-value" id="burnVal">—</div>
+                    <div class="output-ci" id="burnCi"></div>
+                </div>
+                <div class="output-card equivalence-card full-width" id="equivCard">
+                    <div class="equivalence-label">Cognitive-state equivalent (Williamson 2000, Arnedt 2005)</div>
+                    <div class="equivalence-value" id="equivVal">—</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <strong>Disclaimer.</strong> Educational / illustrative tool. Implements the deterministic mean of the Monte Carlo dose-response model described in the source paper; uncertainty ranges reflect within-individual variability only (z noise + parameter SD). Not for clinical decision-making.
+        Source code and Stata do-file: <a href="#" id="repoLink">GitHub</a>.
+    </div>
+</div>
+
+<script>
+"use strict";
+
+// =============================================================================
+// Model parameters — taken verbatim from the Stata do-file used to produce
+// Moen J (2025) Cureus 17(10):e95729. See do-file Section 1 ("Parameter Catalog").
+//   sd_x = (high - low) / 3.92   (95% interval -> SD)
+// =============================================================================
+const P = {
+    baselineSleep: 8,
+    // mean slopes
+    b_rt:        32,    sd_rt:        (37 - 27)   / 3.92,
+    b_clin:      -3,    sd_clin:      (3.5 - 2.5) / 3.92,
+    b_diag:      -2.5,  sd_diag:      (3.0 - 2.0) / 3.92,
+    b_err:        0.11, sd_err:       (0.14 - 0.095) / 3.92,
+    b_burn:       0.25, sd_burn:      (0.30 - 0.20) / 3.92,
+    b_mood:      -2,    sd_mood:      (2.5 - 1.5) / 3.92,
+    b_lap_quad:   0.05, sd_lap_quad:  (0.07 - 0.03) / 3.92,
+    // intercepts (do-file Section 2)
+    int_rt:      280,
+    int_clin:     95,
+    int_diag:     90,
+    int_mood:     80,
+    int_err:     -2.94, // logit
+    int_burn:    -1.95, // logit
+    int_lap:     -1,    // log-rate
+    // noise SDs on the per-observation z draws
+    z_rt:   20,
+    z_clin:  4,
+    z_diag:  3,
+    z_mood:  5,
+    z_lap:   0.4,
+    z_err:   0.3,
+    z_burn:  0.3,
+    // normalization constants for composite score (do-file Section 2)
+    lapMax: 142  // 99th-percentile cap empirically calibrated in the do-file
+};
+
+// Role / specialty modifiers — applied ONLY to outcomes the paper specifies.
+// Do not invent modifiers for outcomes the paper leaves unmodified.
+function modifiers(role, specialty) {
+    let m_diag = 0, m_clin = 0, m_rt = 0;
+    if (role === "student")   { m_diag -= 0.5; m_clin -= 0.5; }
+    if (role === "attending") { m_diag += 0.5; m_clin += 1;   m_rt -= 2; }
+    if (specialty === "surgery")   { m_clin -= 1; }
+    if (specialty === "emergency") { m_rt   += 4; }
+    return { m_diag, m_clin, m_rt };
+}
+
+function clip(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
+function invlogit(x)     { return 1 / (1 + Math.exp(-x)); }
+
+// Predict central tendency (no z noise) and an analytic 95% individual range.
+// The range combines (1) per-observation noise (z * sd_z) and (2) parameter
+// uncertainty in the slope (sd_b * d). Lognormal/logit outcomes are mapped on
+// the natural scale before the symmetric interval is taken.
+function predict(sleepHours, role, specialty) {
+    const d = Math.max(0, P.baselineSleep - sleepHours);
+    const { m_diag, m_clin, m_rt } = modifiers(role, specialty);
+
+    // ---- Reaction time (ms) ----
+    const rt = P.int_rt + (P.b_rt + m_rt) * d + 1.0 * d * d;
+    const rtSd = Math.sqrt(Math.pow(P.sd_rt * d, 2) + Math.pow(P.z_rt, 2));
+
+    // ---- Clinical accuracy (%) ----
+    const clin = P.int_clin + (P.b_clin + m_clin) * d - 0.2 * d * d;
+    const clinSd = Math.sqrt(Math.pow(P.sd_clin * d, 2) + Math.pow(P.z_clin, 2));
+
+    // ---- Diagnostic accuracy (%) ----
+    const diag = P.int_diag + (P.b_diag + m_diag) * d - 0.3 * d * d;
+    const diagSd = Math.sqrt(Math.pow(P.sd_diag * d, 2) + Math.pow(P.z_diag, 2));
+
+    // ---- Mood (0–100) ----
+    const mood = P.int_mood + P.b_mood * d - 0.2 * d * d;
+    const moodSd = Math.sqrt(Math.pow(P.sd_mood * d, 2) + Math.pow(P.z_mood, 2));
+
+    // ---- Attentional lapses (Poisson rate) ----
+    // E[lapses] requires two convexity corrections through the exp:
+    //   (a) per-observation lognormal heterogeneity from z_lap (SD 0.4)
+    //   (b) cross-iteration uncertainty in the quadratic coefficient b_lap_quad
+    // Both contribute +0.5*variance to the log mean (Jensen's inequality).
+    const logLap = P.int_lap + 0.25 * d + P.b_lap_quad * d * d;
+    const logLapVar = P.z_lap * P.z_lap + Math.pow(P.sd_lap_quad * d * d, 2);
+    const lapMean = Math.exp(logLap + 0.5 * logLapVar);
+    const logLapSd = Math.sqrt(logLapVar);
+    const lapLo = Math.exp(logLap - 1.96 * logLapSd);
+    const lapHi = Math.exp(logLap + 1.96 * logLapSd);
+
+    // ---- Medical error (probability) ----
+    const logitErr = P.int_err + P.b_err * d + 0.01 * d * d;
+    const errMean = invlogit(logitErr);
+    const logitErrSd = Math.sqrt(Math.pow(P.sd_err * d, 2) + Math.pow(P.z_err, 2));
+    const errLo = invlogit(logitErr - 1.96 * logitErrSd);
+    const errHi = invlogit(logitErr + 1.96 * logitErrSd);
+
+    // ---- Burnout (probability) ----
+    const logitBurn = P.int_burn + P.b_burn * d;
+    const burnMean = invlogit(logitBurn);
+    const logitBurnSd = Math.sqrt(Math.pow(P.sd_burn * d, 2) + Math.pow(P.z_burn, 2));
+    const burnLo = invlogit(logitBurn - 1.96 * logitBurnSd);
+    const burnHi = invlogit(logitBurn + 1.96 * logitBurnSd);
+
+    // ---- Composite (do-file: mean of four normalized domains) ----
+    const norm_rt   = clip((600 - rt)        / (600 - 200) * 100, 0, 100);
+    const norm_clin = clip((clin - 60)       / (100 - 60)  * 100, 0, 100);
+    const norm_diag = clip((diag - 70)       / 30          * 100, 0, 100);
+    const norm_laps = clip((P.lapMax - lapMean) / P.lapMax * 100, 0, 100);
+    const composite = (norm_rt + norm_clin + norm_diag + norm_laps) / 4;
+
+    // Composite range from the four domain SDs (approximate, assumes independence
+    // on the normalized scale; uses the dominant slope of each domain).
+    const compositeSd = Math.sqrt(
+        Math.pow(rtSd   / 4,  2) +
+        Math.pow(clinSd / 1.6, 2) +
+        Math.pow(diagSd / 1.2, 2)
+    ) / 4;
+
+    return {
+        composite: { v: composite, lo: clip(composite - 1.96 * compositeSd, 0, 100),
+                                   hi: clip(composite + 1.96 * compositeSd, 0, 100) },
+        rt:        { v: rt,   lo: rt   - 1.96 * rtSd,   hi: rt   + 1.96 * rtSd },
+        clin:      { v: clin, lo: clip(clin - 1.96 * clinSd, 0, 100),
+                              hi: clip(clin + 1.96 * clinSd, 0, 100) },
+        diag:      { v: diag, lo: clip(diag - 1.96 * diagSd, 0, 100),
+                              hi: clip(diag + 1.96 * diagSd, 0, 100) },
+        mood:      { v: mood, lo: clip(mood - 1.96 * moodSd, 0, 100),
+                              hi: clip(mood + 1.96 * moodSd, 0, 100) },
+        laps:      { v: lapMean, lo: lapLo, hi: lapHi },
+        err:       { v: errMean * 100, lo: errLo * 100, hi: errHi * 100 },
+        burn:      { v: burnMean * 100, lo: burnLo * 100, hi: burnHi * 100 },
+        sleepHours, d
+    };
+}
+
+// Cognitive-state equivalent. Mapping anchored to Williamson 2000 (17h awake
+// = BAC ~0.05%; 24h awake ≈ BAC ~0.10%) and Arnedt 2005 (post-night-call
+// performance ≈ BAC 0.05%). Driven by sleep debt, the same input axis the
+// underlying impairment model uses.
+function bacEquivalence(d) {
+    if (d <= 1)  return { text: "Comparable to a well-rested baseline.", danger: false };
+    if (d <= 2)  return { text: "Mild impairment — pre-clinical effects on vigilance.", danger: false };
+    if (d <= 3)  return { text: "Comparable to a blood alcohol concentration of ~0.03%.", danger: false };
+    if (d <= 4)  return { text: "Comparable to a blood alcohol concentration of ~0.05%.", danger: false };
+    if (d <= 6)  return { text: "Comparable to a blood alcohol concentration of ~0.08% (legally impaired for driving in most U.S. states).", danger: true };
+    return         { text: "Comparable to a blood alcohol concentration of >0.10% (severe impairment).", danger: true };
+}
+
+// =============================================================================
+// Render
+// =============================================================================
+const els = {
+    sleep:        document.getElementById("sleepHours"),
+    sleepSlider:  document.getElementById("sleepHoursSlider"),
+    role:         document.getElementById("role"),
+    specialty:    document.getElementById("specialty"),
+
+    composite:    document.getElementById("compositeVal"),
+    compositeCi:  document.getElementById("compositeCi"),
+    rt:           document.getElementById("rtVal"),
+    rtCi:         document.getElementById("rtCi"),
+    clin:         document.getElementById("clinVal"),
+    clinCi:       document.getElementById("clinCi"),
+    diag:         document.getElementById("diagVal"),
+    diagCi:       document.getElementById("diagCi"),
+    mood:         document.getElementById("moodVal"),
+    moodCi:       document.getElementById("moodCi"),
+    laps:         document.getElementById("lapsVal"),
+    lapsCi:       document.getElementById("lapsCi"),
+    err:          document.getElementById("errVal"),
+    errCi:        document.getElementById("errCi"),
+    burn:         document.getElementById("burnVal"),
+    burnCi:       document.getElementById("burnCi"),
+
+    equivCard:    document.getElementById("equivCard"),
+    equiv:        document.getElementById("equivVal"),
+    warning:      document.getElementById("safetyWarning"),
+    repoLink:     document.getElementById("repoLink")
+};
+
+function fmt(n, digits) { return Number.isFinite(n) ? n.toFixed(digits) : "—"; }
+function ci(lo, hi, digits, unit) {
+    return `95% range: ${fmt(lo, digits)}–${fmt(hi, digits)}${unit || ""}`;
+}
+
+function render() {
+    const hours = clip(parseFloat(els.sleep.value) || 0, 0, 9);
+    const r = predict(hours, els.role.value, els.specialty.value);
+
+    els.composite.textContent   = fmt(r.composite.v, 1);
+    els.compositeCi.textContent = ci(r.composite.lo, r.composite.hi, 1);
+
+    els.rt.textContent   = fmt(r.rt.v, 0);
+    els.rtCi.textContent = ci(r.rt.lo, r.rt.hi, 0, " ms");
+
+    els.clin.textContent   = fmt(r.clin.v, 1);
+    els.clinCi.textContent = ci(r.clin.lo, r.clin.hi, 1, "%");
+
+    els.diag.textContent   = fmt(r.diag.v, 1);
+    els.diagCi.textContent = ci(r.diag.lo, r.diag.hi, 1, "%");
+
+    els.mood.textContent   = fmt(r.mood.v, 1);
+    els.moodCi.textContent = ci(r.mood.lo, r.mood.hi, 1);
+
+    els.laps.textContent   = fmt(r.laps.v, 1);
+    els.lapsCi.textContent = ci(r.laps.lo, r.laps.hi, 1);
+
+    els.err.textContent   = fmt(r.err.v, 1);
+    els.err.textContent  += "%";
+    els.errCi.textContent = ci(r.err.lo, r.err.hi, 1, "%");
+
+    els.burn.textContent   = fmt(r.burn.v, 1);
+    els.burn.textContent  += "%";
+    els.burnCi.textContent = ci(r.burn.lo, r.burn.hi, 1, "%");
+
+    const eq = bacEquivalence(r.d);
+    els.equiv.textContent = eq.text;
+    els.equivCard.classList.toggle("danger", eq.danger);
+
+    // Patient-safety warning when error probability roughly doubles vs rested
+    // (Cureus paper, Results: <4h vs >4h yields ~9.7% vs 6.8%; >6h baseline 5.2%).
+    els.warning.classList.toggle("show", r.err.v >= 9);
+}
+
+// Keep the slider and number input in sync, and re-render on any input change.
+function syncSleep(source) {
+    const v = clip(parseFloat(source.value) || 0, 0, 9);
+    els.sleep.value = v;
+    els.sleepSlider.value = v;
+    render();
+}
+
+els.sleep.addEventListener("input",        e => syncSleep(e.target));
+els.sleepSlider.addEventListener("input",  e => syncSleep(e.target));
+els.role.addEventListener("change",        render);
+els.specialty.addEventListener("change",   render);
+
+// Set the repo link at runtime so it can be updated in one place without
+// re-publishing. Falls back to the DOI page if no repo is configured yet.
+els.repoLink.href = "https://doi.org/10.7759/cureus.95729";
+
+render();
+</script>
+</body>
+</html>
