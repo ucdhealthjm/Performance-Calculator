@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Performance Sleep Calculator</title>
+    <meta name="description" content="Companion calculator to Moen J (2025), Cureus 17(10): e95729. An interactive illustration of how sleep duration relates to performance, vigilance, and well-being.">
+
+    <!-- Text metadata for shared links. -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ucdhealthjm.github.io/Performance-Calculator/">
+    <meta property="og:title" content="Medical Performance Sleep Calculator">
+    <meta property="og:description" content="Explore how sleep duration changes reaction time, accuracy, vigilance, and well-being in a published Monte Carlo simulation.">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Medical Performance Sleep Calculator">
+    <meta name="twitter:description" content="An interactive illustration of sleep and performance, based on a published Monte Carlo simulation.">
+    <link rel="canonical" href="https://ucdhealthjm.github.io/Performance-Calculator/">
+    <style>
+        :root {
+            --navy: #003366;
+            --blue: #0056b3;
+            --bg: #f4f7f9;
+            --card: #f8f9fa;
+            --card-border: #e9ecef;
+            --muted: #6c757d;
+            --warn-text: #664d03;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: var(--bg);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 980px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: var(--navy);
+            color: white;
+            padding: 22px 25px;
+        }
+        .header h1 { margin: 0; font-size: 1.6em; }
+        .header p { margin: 8px 0 0; opacity: 0.9; font-size: 0.9em; line-height: 1.4; }
+        .header a { color: #cfe2ff; }
+        .calculator-body { display: flex; flex-wrap: wrap; padding: 25px; }
+        .inputs {
+            width: 100%;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 20px;
+        }
+        .outputs { width: 100%; }
+        @media (min-width: 760px) {
+            .inputs {
+                width: 32%;
+                border-bottom: none;
+                border-right: 1px solid #e0e0e0;
+                padding-right: 25px;
+                margin-bottom: 0;
+            }
+            .outputs { width: 68%; padding-left: 25px; }
+        }
+        h2 { font-size: 1.1em; color: var(--navy); margin: 0 0 14px; }
+        .input-group { margin-bottom: 16px; }
+        .input-group label { display: block; font-weight: 600; margin-bottom: 6px; color: #555; font-size: 0.9em; }
+        .input-group input, .input-group select {
+            width: 100%; padding: 9px;
+            border-radius: 5px; border: 1px solid #ccc;
+            font-size: 1em;
+        }
+        .slider-row { display: flex; align-items: center; gap: 10px; }
+        .slider-row input[type=range] { flex: 1; }
+        .slider-row .num { width: 56px; text-align: center; padding: 6px; font-weight: 600; }
+        .output-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .output-card {
+            background: var(--card);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 12px 14px;
+        }
+        .output-card h3 {
+            margin: 0 0 6px; font-size: 0.85em; color: var(--navy);
+            display: flex; justify-content: space-between; align-items: baseline;
+        }
+        .output-card .unit { font-weight: 400; color: var(--muted); font-size: 0.85em; }
+        .output-value { font-size: 1.7em; font-weight: 700; color: var(--blue); line-height: 1; }
+        .output-ci { font-size: 0.75em; color: var(--muted); margin-top: 4px; }
+
+        .narrative {
+            margin-top: 18px;
+            padding: 16px 18px;
+            background: #f0f6ff;
+            border: 1px solid #cfe2ff;
+            border-radius: 8px;
+            font-size: 0.95em;
+            line-height: 1.55;
+            color: #1a3556;
+        }
+        .narrative strong { color: var(--navy); }
+        .narrative .lede { font-size: 1.05em; margin-bottom: 6px; }
+
+        .research-comparison {
+            margin-top: 14px;
+            padding: 14px 16px;
+            background: #fff7e6;
+            border: 1px solid #ffe58f;
+            border-radius: 8px;
+            font-size: 0.88em;
+            line-height: 1.5;
+        }
+        .research-comparison h3 { margin: 0 0 6px; font-size: 1em; color: var(--navy); }
+        .research-comparison p { margin: 0; }
+        .research-comparison a { color: var(--navy); }
+
+        .share-row {
+            margin-top: 14px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            font: inherit;
+            padding: 9px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--navy);
+            background: var(--navy);
+            color: #fff;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        .btn:hover { background: var(--blue); border-color: var(--blue); }
+        .btn.secondary {
+            background: #fff;
+            color: var(--navy);
+        }
+        .btn.secondary:hover { background: #eef4ff; color: var(--navy); }
+        .share-status {
+            font-size: 0.82em;
+            color: var(--muted);
+            margin-top: 6px;
+            min-height: 1.1em;
+        }
+
+        /* ==========================================================
+           Related research
+           ========================================================== */
+        .shift-panel {
+            width: 100%;
+            max-width: 980px;
+            margin: 24px auto 0;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            border: 2px dashed #ffe58f;
+        }
+        .shift-panel .panel-header {
+            background: #fff7e6;
+            color: var(--warn-text);
+            padding: 18px 25px;
+            border-bottom: 1px solid #ffe58f;
+        }
+        .empirical {
+            padding: 22px 25px;
+            background: #fafbfc;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .empirical-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 14px;
+        }
+        @media (min-width: 760px) {
+            .empirical-grid { grid-template-columns: 1fr 1fr; }
+        }
+        .empirical-card {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 14px 16px;
+        }
+        .empirical-card h4 {
+            margin: 0 0 8px;
+            color: var(--navy);
+            font-size: 0.95em;
+        }
+        .footer {
+            background: #e9ecef;
+            padding: 14px 20px;
+            font-size: 0.78em;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+        .footer a { color: var(--navy); }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Medical Performance Sleep Calculator</h1>
+        <p>An interactive illustration of sleep and performance. Companion to Moen J. <em>The Recovery Deficit: A Simulation Model of Physician Performance Under Sleep Deprivation.</em> Cureus 17(10): e95729 (2025). DOI <a href="https://doi.org/10.7759/cureus.95729" target="_blank" rel="noopener">10.7759/cureus.95729</a>.</p>
+    </div>
+
+    <div class="calculator-body">
+        <div class="inputs">
+            <h2>Explore the Simulation</h2>
+
+            <div class="input-group">
+                <label for="sleepHours">Hours of sleep</label>
+                <div class="slider-row">
+                    <input type="range" id="sleepHoursSlider" aria-label="Hours of sleep" min="0" max="8" step="0.1" value="5.5">
+                    <input type="number" id="sleepHours" class="num" min="0" max="8" step="0.1" value="5.5">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="role">Experience level</label>
+                <select id="role">
+                    <option value="student">Medical student</option>
+                    <option value="resident" selected>Resident</option>
+                    <option value="attending">Attending</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="specialty">Specialty</label>
+                <select id="specialty">
+                    <option value="emergency">Emergency Medicine</option>
+                    <option value="surgery">Surgery</option>
+                    <option value="internal" selected>Internal Medicine</option>
+                    <option value="psychiatry">Psychiatry</option>
+                </select>
+            </div>
+
+            <details class="input-group" style="padding-top:8px;">
+                <summary style="cursor:pointer; color:var(--navy); font-size:0.9em;">Explore model sensitivity</summary>
+                <label style="display:flex; align-items:flex-start; gap:8px; margin-top:12px; font-weight:400; cursor:pointer;">
+                    <input type="checkbox" id="sensitivity" style="margin-top:3px; width:auto;">
+                    <span>Increase selected error and lapse terms by 50%</span>
+                </label>
+            </details>
+
+        </div>
+
+        <div class="outputs">
+            <h2>Simulated Performance <span id="modelBadge" style="display:none; font-size:0.55em; font-weight:600; color:#664d03; background:#fff7e6; border:1px solid #ffe58f; padding:3px 8px; border-radius:10px; vertical-align:middle; margin-left:8px;">1.5× sensitivity</span></h2>
+            <div class="output-grid">
+                <div class="output-card">
+                    <h3>Composite Performance <span class="unit">/100</span></h3>
+                    <div class="output-value" id="compositeVal"></div>
+                    <div class="output-ci" id="compositeCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Reaction Time <span class="unit">ms</span></h3>
+                    <div class="output-value" id="rtVal"></div>
+                    <div class="output-ci" id="rtCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Clinical Accuracy <span class="unit">%</span></h3>
+                    <div class="output-value" id="clinVal"></div>
+                    <div class="output-ci" id="clinCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Diagnostic Accuracy <span class="unit">%</span></h3>
+                    <div class="output-value" id="diagVal"></div>
+                    <div class="output-ci" id="diagCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Attentional Lapses <span class="unit">expected count</span></h3>
+                    <div class="output-value" id="lapsVal"></div>
+                    <div class="output-ci" id="lapsCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Medical Error Probability <span class="unit">%</span></h3>
+                    <div class="output-value" id="errVal"></div>
+                    <div class="output-ci" id="errCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Mood <span class="unit">/100</span></h3>
+                    <div class="output-value" id="moodVal"></div>
+                    <div class="output-ci" id="moodCi"></div>
+                </div>
+                <div class="output-card">
+                    <h3>Burnout Probability <span class="unit">%</span></h3>
+                    <div class="output-value" id="burnVal"></div>
+                    <div class="output-ci" id="burnCi"></div>
+                </div>
+
+            </div>
+
+            <div class="narrative" id="narrative" aria-live="polite"></div>
+
+            <aside class="research-comparison" aria-labelledby="alcoholComparisonTitle">
+                <h3 id="alcoholComparisonTitle">For perspective: sleep loss and alcohol</h3>
+                <p>In a study of 34 pediatric residents, performance after heavy night call was comparable to performance during a light-call rotation at a blood alcohol concentration of <strong>0.04–0.05%</strong>, on tests of attention, vigilance, and simulated driving. <a href="https://doi.org/10.1001/jama.294.9.1025" target="_blank" rel="noopener">Arnedt et al., JAMA (2005)</a>.</p>
+                <p style="margin-top:8px;">In a study of 39 adults, 17–19 hours without sleep produced performance equivalent to or worse than a blood alcohol concentration of <strong>0.05%</strong>; after longer periods awake, some tests reached levels equivalent to <strong>0.1%</strong>. <a href="https://doi.org/10.1136/oem.57.10.649" target="_blank" rel="noopener">Williamson &amp; Feyer, Occup Environ Med (2000)</a>.</p>
+                <p style="margin-top:8px; font-size:0.92em; color:var(--muted);">These comparisons come from prior research, not from this simulation.</p>
+            </aside>
+
+            <div class="share-row">
+                <button class="btn" id="shareImgBtn" type="button">Save scenario image</button>
+                <button class="btn secondary" id="copyTextBtn" type="button">Copy share text</button>
+            </div>
+            <div class="share-status" id="shareStatus" aria-live="polite"></div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <strong>Based on the Monte Carlo model in Moen 2025.</strong> Adjust sleep duration to explore the relationship between recovery and performance.
+        <details style="margin-top:10px;">
+            <summary style="cursor:pointer;">About the calculations</summary>
+            <p>Results are model means at the selected sleep duration. The composite averages clinical accuracy, diagnostic accuracy, reaction time, and attentional vigilance on a 0–100 scale; comparisons use an eight-hour rested baseline. Ranges reflect the model’s parameter and observation variability. Accuracy range endpoints are bounded to 0–100% for display. Lapse ranges describe the underlying rate; error and burnout ranges describe probabilities.</p>
+            <p>The article groups sleep into hourly categories, while this calculator evaluates the exact value entered. The optional sensitivity setting increases the linear sleep-deficit term for error and the linear and quadratic sleep-deficit terms for lapses by 50%.</p>
+        </details>
+        <p style="margin:10px 0 0;"><a href="https://doi.org/10.7759/cureus.95729" target="_blank" rel="noopener">Read the article</a> · <a href="#" id="repoLink">Source code</a></p>
+    </div>
+</div>
+
+<details class="shift-panel" id="shiftPanel">
+    <summary class="panel-header" style="cursor:pointer; font-weight:600;">Related research</summary>
+    <div class="empirical"><div class="empirical-grid">
+        <div class="empirical-card">
+            <h4>Duty hours and patient outcomes</h4>
+            <p>FIRST met its noninferiority criterion for death or serious surgical complications (9.1% flexible vs 9.0% standard). iCOMPARE met its primary mortality criterion; unadjusted 30-day readmissions and prolonged stays did not meet their secondary noninferiority criteria.</p>
+            <p><a href="https://doi.org/10.1056/NEJMoa1515724">FIRST 2016</a> · <a href="https://doi.org/10.1056/NEJMoa1810642">iCOMPARE 2019</a></p>
+        </div>
+        <div class="empirical-card">
+            <h4>Education and well-being</h4>
+            <p>iCOMPARE found similar time in patient care and education. Interns in flexible programs reported greater dissatisfaction with well-being (OR 2.47) and personal life (OR 6.11). FIRST found mixed effects across personal-life and training experiences.</p>
+            <p><a href="https://doi.org/10.1056/NEJMoa1800965">iCOMPARE education 2018</a> · <a href="https://doi.org/10.1056/NEJMoa1515724">FIRST 2016</a></p>
+        </div>
+        <div class="empirical-card">
+            <h4>Sleep and workload</h4>
+            <p>ROSTERS residents slept 52.9 vs 49.1 hours per week on schedules without vs with extended shifts. Serious-error rates were higher overall without extended shifts, with substantial site variation and greater workload. The increase was no longer evident after adjustment for patients per resident.</p>
+            <p><a href="https://doi.org/10.1093/sleep/zsz110">ROSTERS sleep 2019</a> · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7405505/">Patient safety 2020</a></p>
+        </div>
+        <div class="empirical-card">
+            <h4>Recovery through napping</h4>
+            <p>The 2026 R-NAP trial enrolled 35 anesthesia residents. In the primary analysis of 27 residents, a 30-minute nap opportunity after a 24-hour shift improved simulated clinical performance by 14.8 points on a 200-point scale (95% CI 2.8–26.9). Technical skills alone did not differ significantly.</p>
+            <p><a href="https://pubmed.ncbi.nlm.nih.gov/42101030/">Schmidt et al., Anesthesiology 2026</a></p>
+        </div>
+    </div></div>
+</details>
+
+<script>
+"use strict";
+
+// =============================================================================
+// Slope and noise assumptions transcribed from the archived Stata do-file for
+// Moen J (2025) Cureus 17(10):e95729. See do-file Section 1 ("Parameter Catalog").
+//   sd_x = (high - low) / 3.92 (assumes a normal 95% range; not verified CIs)
+// =============================================================================
+const P = {
+    baselineSleep: 8,
+    // mean slopes
+    b_rt:        32,    sd_rt:        (37 - 27)   / 3.92,
+    b_clin:      -3,    sd_clin:      (3.5 - 2.5) / 3.92,
+    b_diag:      -2.5,  sd_diag:      (3.0 - 2.0) / 3.92,
+    b_err:        0.11, sd_err:       (0.14 - 0.095) / 3.92,
+    b_burn:       0.25, sd_burn:      (0.30 - 0.20) / 3.92,
+    b_mood:      -2,    sd_mood:      (2.5 - 1.5) / 3.92,
+    b_lap_quad:   0.05, sd_lap_quad:  (0.07 - 0.03) / 3.92,
+    // intercepts (do-file Section 2)
+    int_rt:      280,
+    int_clin:     95,
+    int_diag:     90,
+    int_mood:     80,
+    int_err:     -2.94, // logit
+    int_burn:    -1.95, // logit
+    int_lap:     -1,    // log-rate
+    // noise SDs on the per-observation z draws
+    z_rt:   20,
+    z_clin:  4,
+    z_diag:  3,
+    z_mood:  5,
+    z_lap:   0.4,
+    z_err:   0.3,
+    z_burn:  0.3,
+    // normalization constants for composite score (do-file Section 2)
+    lapMax: 83   // 99th-percentile lapse cap from a 200,000-draw reference sample
+};
+
+// Role / specialty modifiers, applied only to the outcomes the do-file modifies.
+function modifiers(role, specialty) {
+    let m_diag = 0, m_clin = 0, m_rt = 0;
+    if (role === "student")   { m_diag -= 0.5; m_clin -= 0.5; }
+    if (role === "attending") { m_diag += 0.5; m_clin += 1;   m_rt -= 2; }
+    if (specialty === "surgery")   { m_clin -= 1; }
+    if (specialty === "emergency") { m_rt   += 4; }
+    return { m_diag, m_clin, m_rt };
+}
+
+function clip(x, lo, hi) { return Math.max(lo, Math.min(hi, x)); }
+function invlogit(x)     { return 1 / (1 + Math.exp(-x)); }
+
+// Optional sensitivity setting: scales selected error and lapse terms by 1.5.
+const SENSITIVITY_MULT = 1.5;
+
+// Deterministic quadrature over a standard normal. The omitted tail beyond
+// +/-9 SD has negligible mass for the bounded expectations used here.
+function normalExpectation(fn) {
+    const n = 160, step = 18 / n;
+    let total = 0;
+    for (let i = 0; i <= n; i++) {
+        const z = -9 + i * step;
+        const w = (i === 0 || i === n) ? 1 : (i % 2 ? 4 : 2);
+        total += w * Math.exp(-z * z / 2) / Math.sqrt(2 * Math.PI) * fn(z);
+    }
+    return total * step / 3;
+}
+function normalCdf(x) {
+    const t = 1 / (1 + 0.2316419 * Math.abs(x));
+    const density = Math.exp(-x*x/2) / Math.sqrt(2*Math.PI);
+    const tail = density*t*(0.319381530+t*(-0.356563782+t*(1.781477937+t*(-1.821255978+t*1.330274429))));
+    return x >= 0 ? 1-tail : tail;
+}
+function clippedNormalMean(mean, sd, lo, hi) {
+    const a=(lo-mean)/sd, b=(hi-mean)/sd;
+    const phi=x=>Math.exp(-x*x/2)/Math.sqrt(2*Math.PI);
+    return lo*normalCdf(a)+mean*(normalCdf(b)-normalCdf(a))
+        +sd*(phi(a)-phi(b))+hi*(1-normalCdf(b));
+}
+function normalizedLapseMean(logMean, logSd) {
+    return 100 * normalExpectation(z => {
+        const lambda = Math.exp(logMean + logSd*z);
+        let prob = Math.exp(-lambda), sum = prob;
+        for (let k=1; k<P.lapMax; k++) {
+            prob *= lambda/k;
+            sum += (1-k/P.lapMax)*prob;
+        }
+        return sum;
+    });
+}
+
+// Marginal means at an exact sleep duration. Ranges are specific to each
+// modeled outcome and do not estimate confidence in real-world clinical risk.
+function predict(sleepHours, role, specialty, sensitivity) {
+    const d = Math.max(0, P.baselineSleep - sleepHours);
+    const { m_diag, m_clin, m_rt } = modifiers(role, specialty);
+    const errMult = sensitivity ? SENSITIVITY_MULT : 1;
+    const lapMult = sensitivity ? SENSITIVITY_MULT : 1;
+
+    // ---- Reaction time (ms) ----
+    const rt = P.int_rt + (P.b_rt + m_rt) * d + 1.0 * d * d;
+    const rtSd = Math.sqrt(Math.pow(P.sd_rt * d, 2) + Math.pow(P.z_rt, 2));
+
+    // ---- Clinical accuracy (%) ----
+    const clin = P.int_clin + (P.b_clin + m_clin) * d - 0.2 * d * d;
+    const clinSd = Math.sqrt(Math.pow(P.sd_clin * d, 2) + Math.pow(P.z_clin, 2));
+
+    // ---- Diagnostic accuracy (%) ----
+    const diag = P.int_diag + (P.b_diag + m_diag) * d - 0.3 * d * d;
+    const diagSd = Math.sqrt(Math.pow(P.sd_diag * d, 2) + Math.pow(P.z_diag, 2));
+
+    // ---- Mood (0–100) ----
+    const mood = P.int_mood + P.b_mood * d - 0.2 * d * d;
+    const moodSd = Math.sqrt(Math.pow(P.sd_mood * d, 2) + Math.pow(P.z_mood, 2));
+
+    // ---- Attentional lapses (Poisson rate) ----
+    // E[lapses] requires two convexity corrections through the exp:
+    //   (a) per-observation lognormal heterogeneity from z_lap (SD 0.4)
+    //   (b) cross-iteration uncertainty in the quadratic coefficient b_lap_quad
+    // Both contribute +0.5*variance to the log mean (Jensen's inequality).
+    // Sensitivity analysis scales the d-dependent slope only (not the intercept).
+    const logLap = P.int_lap + 0.25 * d * lapMult + P.b_lap_quad * lapMult * d * d;
+    const logLapVar = P.z_lap * P.z_lap + Math.pow(P.sd_lap_quad * lapMult * d * d, 2);
+    const lapMean = Math.exp(logLap + 0.5 * logLapVar);
+    const logLapSd = Math.sqrt(logLapVar);
+    const lapLo = Math.exp(logLap - 1.96 * logLapSd);
+    const lapHi = Math.exp(logLap + 1.96 * logLapSd);
+
+    // ---- Medical error (probability) ----
+    // Sensitivity analysis scales the slope on d (not the intercept).
+    const logitErr = P.int_err + P.b_err * errMult * d + 0.01 * d * d;
+    
+    const logitErrSd = Math.sqrt(Math.pow(P.sd_err * errMult * d, 2) + Math.pow(P.z_err, 2));
+    const errMean = normalExpectation(z => invlogit(logitErr + logitErrSd*z));
+    const errLo = invlogit(logitErr - 1.96 * logitErrSd);
+    const errHi = invlogit(logitErr + 1.96 * logitErrSd);
+
+    // ---- Burnout (probability) ----
+    const logitBurn = P.int_burn + P.b_burn * d;
+    
+    const logitBurnSd = Math.sqrt(Math.pow(P.sd_burn * d, 2) + Math.pow(P.z_burn, 2));
+    const burnMean = normalExpectation(z => invlogit(logitBurn + logitBurnSd*z));
+    const burnLo = invlogit(logitBurn - 1.96 * logitBurnSd);
+    const burnHi = invlogit(logitBurn + 1.96 * logitBurnSd);
+
+    // E[clipped score] differs from clip(E[score]). Correlation does not
+    // affect the mean of a sum, but must be included for a composite interval.
+    const norm_rt = clippedNormalMean((600-rt)/4, rtSd/4, 0, 100);
+    const norm_clin = clippedNormalMean((clin-60)*2.5, clinSd*2.5, 0, 100);
+    const norm_diag = clippedNormalMean((diag-70)/0.3, diagSd/0.3, 0, 100);
+    const norm_laps = normalizedLapseMean(logLap, logLapSd);
+    const composite = (norm_rt + norm_clin + norm_diag + norm_laps)/4;
+
+    return {
+        composite: { v: composite, lo: null, hi: null },
+        rt:        { v: rt,   lo: rt   - 1.96 * rtSd,   hi: rt   + 1.96 * rtSd },
+        clin:      { v: clin, lo: clin - 1.96 * clinSd,
+                              hi: clin + 1.96 * clinSd },
+        diag:      { v: diag, lo: diag - 1.96 * diagSd,
+                              hi: diag + 1.96 * diagSd },
+        mood:      { v: clippedNormalMean(mood, moodSd, 0, 100), lo: clip(mood - 1.96 * moodSd, 0, 100),
+                              hi: clip(mood + 1.96 * moodSd, 0, 100) },
+        laps:      { v: lapMean, lo: lapLo, hi: lapHi },
+        err:       { v: errMean * 100, lo: errLo * 100, hi: errHi * 100 },
+        burn:      { v: burnMean * 100, lo: burnLo * 100, hi: burnHi * 100 },
+        sleepHours, d
+    };
+}
+
+// =============================================================================
+// Render
+// =============================================================================
+const els = {
+    sleep:        document.getElementById("sleepHours"),
+    sleepSlider:  document.getElementById("sleepHoursSlider"),
+    role:         document.getElementById("role"),
+    specialty:    document.getElementById("specialty"),
+
+    composite:    document.getElementById("compositeVal"),
+    compositeCi:  document.getElementById("compositeCi"),
+    rt:           document.getElementById("rtVal"),
+    rtCi:         document.getElementById("rtCi"),
+    clin:         document.getElementById("clinVal"),
+    clinCi:       document.getElementById("clinCi"),
+    diag:         document.getElementById("diagVal"),
+    diagCi:       document.getElementById("diagCi"),
+    mood:         document.getElementById("moodVal"),
+    moodCi:       document.getElementById("moodCi"),
+    laps:         document.getElementById("lapsVal"),
+    lapsCi:       document.getElementById("lapsCi"),
+    err:          document.getElementById("errVal"),
+    errCi:        document.getElementById("errCi"),
+    burn:         document.getElementById("burnVal"),
+    burnCi:       document.getElementById("burnCi"),
+
+    repoLink:     document.getElementById("repoLink"),
+
+    narrative:    document.getElementById("narrative"),
+    shareImg:     document.getElementById("shareImgBtn"),
+    copyText:     document.getElementById("copyTextBtn"),
+    shareStatus:  document.getElementById("shareStatus"),
+    sensitivity:  document.getElementById("sensitivity"),
+    modelBadge:   document.getElementById("modelBadge")
+};
+
+// Holds the most recent prediction so the share/narrative renderers don't
+// have to recompute (and so they always show what the user is actually seeing).
+let lastResult = null;
+
+function fmt(n, digits) { return Number.isFinite(n) ? n.toFixed(digits) : ""; }
+function ci(lo, hi, digits, unit) {
+    return `95% model range: ${fmt(lo, digits)}–${fmt(hi, digits)}${unit || ""}`;
+}
+function accuracyRange(lo, hi) {
+    return `Bounded model range: ${fmt(clip(lo, 0, 100), 1)}–${fmt(clip(hi, 0, 100), 1)}%`;
+}
+
+// Pretty role/specialty labels for the narrative and share copy.
+const ROLE_LABEL = { student: "medical student", resident: "resident", attending: "attending" };
+const SPEC_LABEL = { emergency: "emergency medicine", surgery: "surgery", internal: "internal medicine", psychiatry: "psychiatry" };
+
+// Turn the prediction into 2–3 plain-English sentences the user can read,
+// share, or screenshot.
+function renderNarrative(r, hours, role, specialty, sensitivity) {
+    const rested = predict(8, role, specialty, sensitivity);
+    const oneMore = predict(Math.min(8, hours + 1), role, specialty, sensitivity);
+    const ratio = r.err.v/rested.err.v;
+    const relativeScore = 100*r.composite.v/rested.composite.v;
+    const rtChange = r.rt.v-rested.rt.v;
+    const comparison = hours >= P.baselineSleep
+        ? "the rested baseline" : `${ratio.toFixed(1)}× the rested baseline`;
+    els.narrative.innerHTML =
+        `<div class="lede"><strong>At ${hours} hours of sleep, simulated error probability is ${r.err.v.toFixed(1)}%</strong>, ${comparison}.</div>` +
+        `<div>Composite performance is <strong>${relativeScore.toFixed(0)}%</strong> of the rested score. Reaction time is ${r.rt.v.toFixed(0)} ms${rtChange > 0 ? `, ${rtChange.toFixed(0)} ms slower than rested` : ""}.</div>` +
+        (hours < 8 ? `<div style="margin-top:6px">At ${Math.min(8,hours+1).toFixed(1)} hours, simulated error probability is ${oneMore.err.v.toFixed(1)}%.</div>` : "");
+}
+
+function render() {
+    const hours = clip(parseFloat(els.sleep.value) || 0, 0, P.baselineSleep);
+    const sensitivity = els.sensitivity.checked;
+    const r = predict(hours, els.role.value, els.specialty.value, sensitivity);
+    lastResult = { r, hours, role: els.role.value, specialty: els.specialty.value, sensitivity };
+
+    els.composite.textContent   = fmt(r.composite.v, 1);
+    els.compositeCi.textContent = "Four-domain average";
+
+    els.rt.textContent   = fmt(r.rt.v, 0);
+    els.rtCi.textContent = ci(r.rt.lo, r.rt.hi, 0, " ms");
+
+    els.clin.textContent   = fmt(r.clin.v, 1);
+    els.clinCi.textContent = accuracyRange(r.clin.lo, r.clin.hi);
+
+    els.diag.textContent   = fmt(r.diag.v, 1);
+    els.diagCi.textContent = accuracyRange(r.diag.lo, r.diag.hi);
+
+    els.mood.textContent   = fmt(r.mood.v, 1);
+    els.moodCi.textContent = ci(r.mood.lo, r.mood.hi, 1);
+
+    els.laps.textContent   = fmt(r.laps.v, 1);
+    els.lapsCi.textContent = `95% rate range: ${fmt(r.laps.lo,1)}–${fmt(r.laps.hi,1)}`;
+
+    els.err.textContent   = fmt(r.err.v, 1);
+    els.err.textContent  += "%";
+    els.errCi.textContent = `95% probability range: ${fmt(r.err.lo,1)}–${fmt(r.err.hi,1)}%`;
+
+    els.burn.textContent   = fmt(r.burn.v, 1);
+    els.burn.textContent  += "%";
+    els.burnCi.textContent = `95% probability range: ${fmt(r.burn.lo,1)}–${fmt(r.burn.hi,1)}%`;
+
+    renderNarrative(r, hours, els.role.value, els.specialty.value, sensitivity);
+
+    // Show when the optional sensitivity setting is active.
+    els.modelBadge.style.display = sensitivity ? "inline-block" : "none";
+}
+
+// Keep the slider and number input in sync, and re-render on any input change.
+function syncSleep(source) {
+    const v = clip(parseFloat(source.value) || 0, 0, P.baselineSleep);
+    els.sleep.value = v;
+    els.sleepSlider.value = v;
+    render();
+}
+
+// While typing, update the slider and results but leave the box alone so a
+// cleared field isn't reset to 0. Normalize the box when the user leaves it.
+els.sleep.addEventListener("input", e => {
+    if (e.target.value === "") return;
+    els.sleepSlider.value = clip(parseFloat(e.target.value) || 0, 0, P.baselineSleep);
+    render();
+});
+els.sleep.addEventListener("change",       e => syncSleep(e.target));
+els.sleepSlider.addEventListener("input",  e => syncSleep(e.target));
+els.role.addEventListener("change",        render);
+els.specialty.addEventListener("change",   render);
+els.sensitivity.addEventListener("change", render);
+
+// =============================================================================
+// Share: image and text
+// =============================================================================
+const SITE_URL = "https://ucdhealthjm.github.io/Performance-Calculator/";
+const CITATION = "Moen J. Cureus 17(10): e95729 (2025). doi:10.7759/cureus.95729";
+
+// Render the user's current result to a 1200x630 canvas. Drawn fresh on every
+// click so the image always matches what's on screen.
+function buildShareCanvas(state) {
+    const { r, hours, role, specialty, sensitivity } = state;
+    const W = 1200, H = 630;
+    const canvas = document.createElement("canvas");
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext("2d");
+
+    // Background
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, W, H);
+
+    // Navy header
+    ctx.fillStyle = "#003366";
+    ctx.fillRect(0, 0, W, 130);
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "600 44px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillText("Medical Performance Sleep Calculator", 50, 75);
+    ctx.fillStyle = "rgba(220,230,245,1)";
+    ctx.font = "400 22px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    const headerLine = `${ROLE_LABEL[role]} · ${SPEC_LABEL[specialty]}`
+        + (sensitivity ? " · 1.5× sensitivity" : "");
+    ctx.fillText(headerLine, 50, 110);
+
+    // Lede
+    const rested = predict(8, role, specialty, sensitivity);
+    const errMult = r.err.v / rested.err.v;
+
+    ctx.fillStyle = "#6c757d";
+    ctx.font = "400 32px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillText(`Model scenario: ${hours} hours of sleep`, 50, 195);
+
+    // Main simulated result
+    ctx.fillStyle = "#0056b3";
+    ctx.font = "700 120px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    const headline = `${r.err.v.toFixed(1)}%`;
+    ctx.fillText(headline, 50, 320);
+    const headlineW = ctx.measureText(headline).width;
+    ctx.fillStyle = "#6c757d";
+    ctx.font = "400 30px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillText("simulated error probability", 50 + headlineW + 20, 320);
+
+    // Multiplier vs rested
+    ctx.fillStyle = "#003366";
+    ctx.font = "600 32px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    if (hours >= P.baselineSleep) {
+        ctx.fillText(`The rested baseline of ${rested.err.v.toFixed(1)}%`, 50, 380);
+    } else if (errMult >= 1.05) {
+        ctx.fillText(`${errMult.toFixed(1)}× the rested baseline of ${rested.err.v.toFixed(1)}%`, 50, 380);
+    } else {
+        ctx.fillText(`Near the rested baseline of ${rested.err.v.toFixed(1)}%`, 50, 380);
+    }
+    ctx.font = "400 26px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillStyle = "#444";
+    ctx.fillText(`Reaction time ${r.rt.v.toFixed(0)} ms  ·  Composite ${r.composite.v.toFixed(0)}/100`, 50, 418);
+
+    // Composite relative to the rested reference.
+    const bandY0 = 445, bandY1 = 525;
+    ctx.fillStyle = "#edf4fb";
+    ctx.fillRect(50, bandY0, W - 100, bandY1 - bandY0);
+    ctx.fillStyle = "#003366";
+    ctx.font = "600 30px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillText(`${(100*r.composite.v/rested.composite.v).toFixed(0)}% of rested composite performance`, 70, bandY0 + 50);
+
+    // Footer
+    ctx.fillStyle = "#6c757d";
+    ctx.font = "400 20px -apple-system, 'Helvetica Neue', Arial, sans-serif";
+    ctx.fillText(CITATION, 50, H - 60);
+    ctx.fillStyle = "#003366";
+    ctx.fillText("ucdhealthjm.github.io/Performance-Calculator", 50, H - 32);
+
+    return canvas;
+}
+
+function flashStatus(msg) {
+    els.shareStatus.textContent = msg;
+    setTimeout(() => { els.shareStatus.textContent = ""; }, 4000);
+}
+
+async function downloadShareImage() {
+    if (!lastResult) return;
+    const canvas = buildShareCanvas(lastResult);
+    const fname = `sleep-performance-${lastResult.hours}h.png`;
+    canvas.toBlob(async (blob) => {
+        if (!blob) {
+            flashStatus("Could not create the image. Please try again.");
+            return;
+        }
+        // Trigger download
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url; a.download = fname;
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+
+        // Also try clipboard (works in modern Chromium/Safari, requires HTTPS)
+        let clipped = false;
+        try {
+            if (navigator.clipboard && window.ClipboardItem) {
+                await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+                clipped = true;
+            }
+        } catch (_) { /* clipboard not granted; download still worked */ }
+
+        flashStatus(clipped
+            ? `Saved ${fname} and copied image to clipboard; paste it anywhere.`
+            : `Saved ${fname} to your Downloads folder.`);
+    }, "image/png");
+}
+
+function buildShareText(state) {
+    const { r, hours, sensitivity } = state;
+    const rested = predict(8, state.role, state.specialty, sensitivity);
+    const errMult = (r.err.v / rested.err.v).toFixed(1);
+    const sensitivityTag = sensitivity ? " (1.5× sensitivity)" : "";
+    const comparison = hours >= P.baselineSleep
+        ? "the rested baseline" : `about ${errMult}× the rested baseline`;
+    return [
+        `At ${hours} hours of sleep, simulated error probability is ${r.err.v.toFixed(1)}%${sensitivityTag}, ${comparison}.`,
+        `Simulated reaction time: ${r.rt.v.toFixed(0)} ms. Composite performance: ${(100*r.composite.v/rested.composite.v).toFixed(0)}% of rested.`,
+        ``,
+        `Try it: ${SITE_URL}`,
+        `Monte Carlo illustration: Moen J. Cureus 17(10): e95729 (2025).`
+    ].join("\n");
+}
+
+async function copyShareText() {
+    if (!lastResult) return;
+    const txt = buildShareText(lastResult);
+    try {
+        await navigator.clipboard.writeText(txt);
+        flashStatus("Share text copied; paste into X, LinkedIn, or iMessage.");
+    } catch (_) {
+        // Fallback: open a prompt the user can copy from
+        window.prompt("Copy this:", txt);
+    }
+}
+
+els.shareImg.addEventListener("click",  downloadShareImage);
+els.copyText.addEventListener("click",  copyShareText);
+
+// Source repository for this calculator.
+els.repoLink.href = "https://github.com/ucdhealthjm/Performance-Calculator";
+
+render();
+</script>
+</body>
+</html>
